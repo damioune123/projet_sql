@@ -61,3 +61,18 @@ CREATE TABLE shyeld.reperages(
 	coord_x integer NOT NULL CHECK (coord_x>=0 AND coord_x<=100),
 	coord_y integer NOT NULL CHECK (coord_y >=0 AND coord_y <=100)	
 );
+
+-- PARTIE 2 DELETE d'un agent
+CREATE OR REPLACE FUNCTION shyeld.supprimerAgent(INTEGER) RETURNS INTEGER as $$
+DECLARE
+	_agentId ALIAS FOR $1;
+	reply_code INTEGER:=0;
+BEGIN
+	IF NOT EXISTS (SELECT * FROM shyeld.agents a
+			WHERE a.id_agent = _agentId)
+			THEN RAISE foreign_key_violation;
+	END IF;
+	UPDATE shyeld.agents SET est_actif = 'false' WHERE agent_id = _agentId;
+	RETURN _agentId;
+END;
+$$ LANGUAGE plpgsql;
