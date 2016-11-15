@@ -66,7 +66,6 @@ CREATE TABLE shyeld.reperages(
 CREATE OR REPLACE FUNCTION shyeld.supprimerAgent(INTEGER) RETURNS INTEGER as $$
 DECLARE
 	_agentId ALIAS FOR $1;
-	reply_code INTEGER:=0;
 BEGIN
 	IF NOT EXISTS (SELECT * FROM shyeld.agents a
 			WHERE a.id_agent = _agentId)
@@ -74,5 +73,19 @@ BEGIN
 	END IF;
 	UPDATE shyeld.agents SET est_actif = 'false' WHERE agent_id = _agentId;
 	RETURN _agentId;
+END;
+$$ LANGUAGE plpgsql;
+
+-- PARTIE 4 DELETE d'un super-héros
+CREATE OR REPLACE FUNCTION shyeld.supprimerSuperHeros(INTEGER) RETURNS INTEGER as $$
+DECLARE
+	_superHeroId ALIAS FOR $1;
+BEGIN
+	IF NOT EXISTS (SELECT * FROM shyeld.superheros sh
+			WHERE sh.id_superhero = _superHeroId)
+			THEN RAISE foreign_key_violation;
+	END IF;
+	UPDATE shyeld.superheros SET est_vivant = 'false' WHERE id_superhero = _superHeroId;
+	RETURN _superHeroId;
 END;
 $$ LANGUAGE plpgsql;
