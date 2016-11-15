@@ -4,8 +4,9 @@ DROP TYPE type_issue;
 
 CREATE SCHEMA shyeld;
 
-CREATE TYPE type_clan AS ENUM('M','D');
-CREATE TYPE type_issue AS ENUM('G','P','N');
+CREATE TYPE shyeld.type_clan AS ENUM('M','D');
+CREATE TYPE shyeld.type_issue AS ENUM('G','P','N');
+CREATE TYPE shyeld.row_visibilite AS (nom_superhero varchar(255), date_derniere_apparition timestamp, derniere_coordonneeX integer, derniere_coordonneeY integer);
 
 CREATE TABLE shyeld.superheros(
 	id_superhero bigserial PRIMARY KEY,
@@ -19,7 +20,7 @@ CREATE TABLE shyeld.superheros(
 	derniere_coordonneeX integer CHECK (derniere_coordonneeX >= 0 AND derniere_coordonneeX <= 100),
 	derniere_coordonneeY integer CHECK (derniere_coordonneeY >= 0 AND derniere_coordonneeY <= 100),
 	date_derniere_apparition timestamp NOT NULL CHECK (date_derniere_apparition <= now()),
-	clan type_clan NOT NULL,
+	clan shyeld.type_clan NOT NULL,
 	nombre_victoires integer NOT NULL CHECK (nombre_victoires >= 0),
 	nombre_defaites integer NOT NULL CHECK (nombre_defaites >= 0),
 	est_vivant boolean NOT NULL,
@@ -44,13 +45,13 @@ CREATE TABLE shyeld.combats(
 	nombre_gagnants integer NOT NULL CHECK (nombre_gagnants >= 0),
 	nombre_perdants integer NOT NULL CHECK (nombre_perdants >= 0),
 	nombre_neutres integer NOT NULL CHECK (nombre_neutres >= 0),
-	clan_vainqueur type_clan NOT NULL
+	clan_vainqueur shyeld.type_clan NOT NULL
 );
 
 CREATE TABLE shyeld.participations(
 	superhero bigserial NOT NULL REFERENCES shyeld.superheros(id_superhero),
 	combat bigserial NOT NULL REFERENCES shyeld.combats(id_combat),
-	issue type_issue NOT NULL DEFAULT 'N',
+	issue shyeld.type_issue NOT NULL DEFAULT 'N',
 	PRIMARY KEY (superhero, combat)                                                                                                                                     
 );
 
@@ -75,3 +76,19 @@ BEGIN
 		WHEN check_violation THEN RAISE EXCEPTION 'inscription pas avoir lieu';
 END
 $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION perte_visibilite() RETURNS SETOF shyeld.row_visibilite as $$
+DECLARE
+	_superhero RECORD;
+	_sortie shyeld.row_visibilite; 
+BEGIN
+	FOR _superhero IN SELECT * FROM s.shyeld.superheros  WHERE (date_part('year', age(s.date_derniere_apparition)) > 1
+															OR date_part('month', age(s.date_derniere_apparition)) > 1
+															OR date_part('day', age(s.date_derniere_apparition)) > 15) LOOP
+		SELECT _superhero.nom_superhero, _superhero.date_derniere_apparition, _superhero.derniere_coordonneeX, _superhero.derniere_coordonneeY INTO _sortie;
+		RETURN NEXT _sortie;
+	END LOOP;
+	RETURN;
+END;
+$$ LANGUAGE plpgsql; 
+		
