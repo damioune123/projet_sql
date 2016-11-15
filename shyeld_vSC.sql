@@ -9,12 +9,12 @@ CREATE TYPE type_issue AS ENUM('G','P','N');
 
 CREATE TABLE shyeld.superheros(
 	id_superhero bigserial PRIMARY KEY,
-	nom_civil varchar(255) CHECK (nom_civil != '' AND nom_civil SIMILAR TO ('%[a-zA-Z0-9]%')),
-	prenom_civil varchar(255) CHECK	(prenom_civil != '' AND prenom_civil SIMILAR TO ('%[a-zA-Z0-9]%')),
-	nom_superhero varchar(255) NOT NULL CHECK (nom_superhero != '' AND nom_superhero SIMILAR TO ('%[a-zA-Z0-9]%')),
-	adresse_privee varchar(255) CHECK (adresse_privee != '' AND adresse_privee SIMILAR TO ('%[a-zA-Z0-9]%')),
-	origine varchar(255) CHECK (origine != '' AND origine SIMILAR TO ('%[a-zA-Z0-9]%')),
-	type_super_pouvoir varchar(255) NOT NULL CHECK (type_super_pouvoir != '' AND type_super_pouvoir SIMILAR TO ('%[a-zA-Z0-9]%')),
+	nom_civil varchar(255) CHECK (nom_civil != ''),
+	prenom_civil varchar(255) CHECK	(prenom_civil != ''),
+	nom_superhero varchar(255) NOT NULL CHECK (nom_superhero != ''),
+	adresse_privee varchar(255) CHECK (adresse_privee != ''),
+	origine varchar(255) CHECK (origine != ''),
+	type_super_pouvoir varchar(255) NOT NULL CHECK (type_super_pouvoir != ''),
 	puissance_super_pouvoir integer NOT NULL CHECK (puissance_super_pouvoir >= 1 AND puissance_super_pouvoir <= 10),
 	derniere_coordonneeX integer CHECK (derniere_coordonneeX >= 0 AND derniere_coordonneeX <= 100),
 	derniere_coordonneeY integer CHECK (derniere_coordonneeY >= 0 AND derniere_coordonneeY <= 100),
@@ -28,8 +28,8 @@ CREATE TABLE shyeld.superheros(
 
 CREATE TABLE shyeld.agents(
 	id_agent bigserial primary key,
-	prenom varchar(255) NOT NULL CHECK(prenom <>'' AND prenom SIMILAR TO ('%[a-zA-Z0-9]%')),
-	nom varchar(255) NOT NULL CHECK (nom<> ''  AND nom SIMILAR TO ('%[a-zA-Z0-9]%')),
+	prenom varchar(255) NOT NULL CHECK(prenom <>''),
+	nom varchar(255) NOT NULL CHECK (nom<> ''),
 	date_mise_en_service TIMESTAMP NOT NULL CHECK(date_mise_en_service <= now()),
 	est_actif boolean NOT NULL
 );
@@ -39,7 +39,12 @@ CREATE TABLE shyeld.combats(
 	date_combat timestamp NOT NULL CHECK (date_combat <= now()),
 	coord_combatX integer NOT NULL CHECK (coord_combatX >= 0 AND coord_combatX <= 100),
 	coord_combatY integer NOT NULL CHECK (coord_combatY >= 0 AND coord_combatY <= 100),
-	agent bigserial NOT NULL REFERENCES shyeld.agents(id_agent)
+	agent bigserial NOT NULL REFERENCES shyeld.agents(id_agent),
+	nombre_participants integer NOT NULL CHECK (nombre_participants >= 0),
+	nombre_gagnants integer NOT NULL CHECK (nombre_gagnants >= 0),
+	nombre_perdants integer NOT NULL CHECK (nombre_perdants >= 0),
+	nombre_neutres integer NOT NULL CHECK (nombre_neutres >= 0),
+	clan_vainqueur type_clan NOT NULL
 );
 
 CREATE TABLE shyeld.participations(
@@ -54,6 +59,5 @@ CREATE TABLE shyeld.reperages(
 	agent bigserial NOT NULL references shyeld.agents(id_agent),
 	superhero bigserial NOT NULL references shyeld.superheros(id_superhero),
 	coord_x integer NOT NULL CHECK (coord_x>=0 AND coord_x<=100),
-	coord_y integer NOT NULL CHECK (coord_y >=0 AND coord_y <=100)
-	
+	coord_y integer NOT NULL CHECK (coord_y >=0 AND coord_y <=100)	
 );
