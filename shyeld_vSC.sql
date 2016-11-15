@@ -1,12 +1,12 @@
 ﻿DROP SCHEMA shyeld CASCADE;
 DROP TYPE type_clan;
 DROP TYPE type_issue;
-
 CREATE SCHEMA shyeld;
 
 CREATE TYPE shyeld.type_clan AS ENUM('M','D');
 CREATE TYPE shyeld.type_issue AS ENUM('G','P','N');
 CREATE TYPE shyeld.row_visibilite AS (nom_superhero varchar(255), date_derniere_apparition timestamp, derniere_coordonneeX integer, derniere_coordonneeY integer);
+CREATE TYPE shyeld.row_zone AS (coord_x integer,coord_y integer);
 
 CREATE TABLE shyeld.superheros(
 	id_superhero bigserial PRIMARY KEY,
@@ -61,7 +61,7 @@ CREATE TABLE shyeld.reperages(
 	superhero bigserial NOT NULL references shyeld.superheros(id_superhero),
 	coord_x integer NOT NULL CHECK (coord_x>=0 AND coord_x<=100),
 	coord_y integer NOT NULL CHECK (coord_y >=0 AND coord_y <=100)	
-);
+); /* ---> Rajouter date ? <--- */
 
 CREATE OR REPLACE FUNCTION inscription_agent(varchar(255), varchar(255)) RETURNS integer as $$
 DECLARE
@@ -82,13 +82,44 @@ DECLARE
 	_superhero RECORD;
 	_sortie shyeld.row_visibilite; 
 BEGIN
-	FOR _superhero IN SELECT * FROM s.shyeld.superheros  WHERE (date_part('year', age(s.date_derniere_apparition)) > 1
-															OR date_part('month', age(s.date_derniere_apparition)) > 1
+	FOR _superhero IN SELECT * FROM s.shyeld.superheros  WHERE (date_part('year', age(s.date_derniere_apparition)) >= 1
+															OR date_part('month', age(s.date_derniere_apparition)) >= 1
 															OR date_part('day', age(s.date_derniere_apparition)) > 15) LOOP
 		SELECT _superhero.nom_superhero, _superhero.date_derniere_apparition, _superhero.derniere_coordonneeX, _superhero.derniere_coordonneeY INTO _sortie;
 		RETURN NEXT _sortie;
 	END LOOP;
 	RETURN;
 END;
-$$ LANGUAGE plpgsql; 
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION zone_conflit() RETURNS SETOF shyeld.row_zone as $$
+DECLARE
+	_zone RECORD;
+	_sortie shyeld.row_zone;
+BEGIN
+	/* SELECTION ZONE CONFLIT */
+	FOR _zone IN SELECT r.* 
+				FROM shyeld.reperages r, shyeld.superheros s 
+				WHERE r.superhero = s.id_superhero 
+				AND (SELECT count(DISTINCT s1.clan) 
+					FROM shyeld.reperages r1, shyeld.superheros s1
+					WHERE r1.superhero = s1.id_superhero) LOOP
+		SELECT _zone.coord_x, _zone.coord_y INTO _sortie;
+		RETURN NEXT _sortie;
+		/* SELECTION ZONE ADJACENTE x + 1*/
+		SELECT _zone.coord_x + 1, _zone.coord_y INTO _sortie;
+		RETURN NEXT _sortie;
+		/* SELECTION ZONE ADJACENTE x - 1*/
+		SELECT _zone.coord_x - 1, _zone.coord_y INTO _sortie;
+		RETURN NEXT _sortie;
+		/* SELECTION ZONE ADJACENTE y + 1*/
+		SELECT _zone.coord_x, _zone.coord_y + 1 INTO _sortie;
+		RETURN NEXT _sortie;
+		/* SELECTION ZONE ADJACENTE y - 1*/
+		SELECT _zone.coord_x, _zone.coord_y - 1 INTO _sortie;
+		RETURN NEXT _sortie;
+	END LOOP;
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
 		
