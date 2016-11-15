@@ -61,3 +61,17 @@ CREATE TABLE shyeld.reperages(
 	coord_x integer NOT NULL CHECK (coord_x>=0 AND coord_x<=100),
 	coord_y integer NOT NULL CHECK (coord_y >=0 AND coord_y <=100)	
 );
+
+CREATE OR REPLACE FUNCTION inscription_agent(varchar(255), varchar(255)) RETURNS integer as $$
+DECLARE
+	_nomAgent ALIAS FOR $1;
+	_prenomAgent ALIAS FOR $2;
+	_id integer := 0;
+BEGIN
+	INSERT INTO shyeld.agents VALUES(DEFAULT, _prenomAgent, _nomAgent, now(), true) RETURNING id_agent INTO _id;
+	RETURN id;
+
+	EXCEPTION
+		WHEN check_violation THEN RAISE EXCEPTION 'inscription pas avoir lieu';
+END
+$$ LANGUAGE plpgsql;
