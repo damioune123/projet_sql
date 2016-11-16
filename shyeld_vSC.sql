@@ -1,7 +1,7 @@
-DROP SCHEMA shyeld CASCADE;
-DROP TYPE type_clan;
-DROP TYPE type_issue;
-DROP TYPE listesReperagesAgent;
+﻿DROP SCHEMA IF EXISTS shyeld CASCADE;
+DROP TYPE IF EXISTS  type_clan;
+DROP TYPE IF EXISTS  type_issue;
+DROP TYPE IF EXISTS  listesReperagesAgent;
 
 
 CREATE SCHEMA shyeld;
