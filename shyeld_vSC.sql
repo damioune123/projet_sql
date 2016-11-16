@@ -1,4 +1,4 @@
-﻿DROP SCHEMA IF EXISTS shyeld CASCADE;
+DROP SCHEMA IF EXISTS shyeld CASCADE;
 DROP TYPE IF EXISTS  type_clan;
 DROP TYPE IF EXISTS  type_issue;
 DROP TYPE IF EXISTS  listesReperagesAgent;
@@ -11,7 +11,9 @@ CREATE TYPE shyeld.type_issue AS ENUM('G','P','N');
 CREATE TYPE shyeld.row_visibilite AS (nom_superhero varchar(255), date_derniere_apparition timestamp, derniere_coordonneeX integer, derniere_coordonneeY integer);
 CREATE TYPE shyeld.row_zone AS (coord_x integer,coord_y integer);
 CREATE TYPE shyeld.listesReperagesAgent AS (id_superhero INTEGER, nom_superhero varchar(255), coord_x  INTEGER, coord_y  INTEGER, date timestamp);
+CREATE TYPE shyeld.resumeCombatPourHero AS (nom_superhero varchar(255), integer)
 
+/************************************ CREATE TABLE ********************************************/
 
 CREATE TABLE shyeld.superheros(
 	id_superhero serial PRIMARY KEY,
@@ -69,11 +71,13 @@ CREATE TABLE shyeld.reperages(
 	superhero integer NOT NULL references shyeld.superheros(id_superhero),
 	coord_x integer NOT NULL CHECK (coord_x>=0 AND coord_x<=100),
 	coord_y integer NOT NULL CHECK (coord_y >=0 AND coord_y <=100),
-	date timestamp CHECK (date <= now())	
+	date_reperage timestamp CHECK (date <= now())	
 );
 INSERT INTO shyeld.reperages (agent, superhero, coord_x, coord_y ,date) VALUES (1, 1, 5, 10, now()::TIMESTAMP);
 INSERT INTO shyeld.reperages (agent, superhero, coord_x, coord_y ,date) VALUES (1, 1, 19, 20, now()::TIMESTAMP);
 --partie 1 inscription agent
+
+/********************************************************* FUNCTIONS **************************************************/
 
 CREATE OR REPLACE FUNCTION inscription_agent(varchar(255), varchar(255)) RETURNS integer as $$
 DECLARE
@@ -145,10 +149,13 @@ BEGIN
 	/* SELECTION ZONE CONFLIT */
 	FOR _zone IN SELECT r.* 
 				FROM shyeld.reperages r, shyeld.superheros s 
-				WHERE r.superhero = s.id_superhero 
-				AND (SELECT count(DISTINCT s1.clan) 
-					FROM shyeld.reperages r1, shyeld.superheros s1
-					WHERE r1.superhero = s1.id_superhero) LOOP
+				WHERE r.superhero = s.id_superhero
+				AND (date_part('year', age(s.date_derniere_apparition)) < 1
+															OR date_part('month', age(s.date_derniere_apparition)) < 1
+															OR date_part('day', age(s.date_derniere_apparition)) < 10)
+				AND 2 = (SELECT count(DISTINCT s1.clan) 
+					FROM shyeld.reperages r1
+					AND r.id_reperage = r1.id_reperage) LOOP
 		SELECT _zone.coord_x, _zone.coord_y INTO _sortie;
 		RETURN NEXT _sortie;
 		/* SELECTION ZONE ADJACENTE x + 1*/
@@ -169,8 +176,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- PARTIE 6 Historique d'un agent
-CREATE OR REPLACE FUNCTION shyeld.historiqueAgent(INTEGER, TIMESTAMP, TIMESTAMP) RETURNS SETOF
-shyeld.listesReperagesAgent as $$
+CREATE OR REPLACE FUNCTION shyeld.historiqueAgent(INTEGER, TIMESTAMP, TIMESTAMP) RETURNS SETOF shyeld.listesReperagesAgent as $$
 DECLARE
 	_agentId ALIAS FOR $1;
 	_dateInf ALIAS FOR $2;
@@ -194,4 +200,36 @@ END;
 $$ LANGUAGE plpgsql;
 SELECT * FROM shyeld.historiqueAgent(1, now()::timestamp- interval '200 min', now()::timestamp);
 
+/* ---------------- Partie 7 ----------------- */
+
+/* ---> a) <--- */
+
+CREATE OR REPLACE FUNCTION classementVictoires() RETURNS SETOF shyeld.resumeCombatPourHero as $$
+DECLARE
+	_resume RECORD;
+	_sortie shyeld.resumeCombatPourHero;
+BEGIN
+	FOR _resume IN (SELECT * FROM shyeld.superheros s WHERE s.est_vivant = TRUE) LOOP
+		SELECT _resume.nom_superhero, _resume.nombre_victoires INTO _sortie;
+		RETURN NEXT _SORTIE;
+	END LOOP;
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION classementDefaites() RETURNS SETOF shyeld.resumeCombatPourHero as $$
+DECLARE
+	_resume RECORD;
+	_sortie shyeld.resumeCombatPourHero;
+BEGIN
+	FOR _resume IN (SELECT * FROM shyeld.superheros s WHERE s.est_vivant = TRUE) LOOP
+		SELECT _resume.nom_superhero, _resume.nombre_defaites INTO _sortie;
+		RETURN NEXT _SORTIE;
+	END LOOP;
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+
+/************************************** INSERT INTO (META DONNEES) **************************************************************/
 
