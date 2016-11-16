@@ -1,4 +1,4 @@
-DROP SCHEMA IF EXISTS shyeld CASCADE;
+﻿DROP SCHEMA IF EXISTS shyeld CASCADE;
 DROP TYPE IF EXISTS  type_clan;
 DROP TYPE IF EXISTS  type_issue;
 DROP TYPE IF EXISTS  listesReperagesAgent;
@@ -11,7 +11,8 @@ CREATE TYPE shyeld.type_issue AS ENUM('G','P','N');
 CREATE TYPE shyeld.row_visibilite AS (nom_superhero varchar(255), date_derniere_apparition timestamp, derniere_coordonneeX integer, derniere_coordonneeY integer);
 CREATE TYPE shyeld.row_zone AS (coord_x integer,coord_y integer);
 CREATE TYPE shyeld.listesReperagesAgent AS (id_superhero INTEGER, nom_superhero varchar(255), coord_x  INTEGER, coord_y  INTEGER, date timestamp);
-CREATE TYPE shyeld.resumeCombatPourHero AS (nom_superhero varchar(255), integer)
+CREATE TYPE shyeld.resumeCombatPourHero AS (nom_superhero varchar(255), nombreVictoiresDefaites integer);
+CREATE TYPE shyeld.resumeReperagePourAgent AS (nom varchar(255), prenom varchar(255), nombreReperages integer);
 
 /************************************ CREATE TABLE ********************************************/
 
@@ -43,6 +44,7 @@ CREATE TABLE shyeld.agents(
 	date_mise_en_service TIMESTAMP NOT NULL CHECK(date_mise_en_service <= now()),
 	est_actif boolean NOT NULL
 );
+
 INSERT INTO shyeld.agents (id_agent, prenom, nom, date_mise_en_service, est_actif) VALUES (1, 'dams', 'lamif', now()::timestamp, 'true');
 
 CREATE TABLE shyeld.combats(
@@ -71,7 +73,7 @@ CREATE TABLE shyeld.reperages(
 	superhero integer NOT NULL references shyeld.superheros(id_superhero),
 	coord_x integer NOT NULL CHECK (coord_x>=0 AND coord_x<=100),
 	coord_y integer NOT NULL CHECK (coord_y >=0 AND coord_y <=100),
-	date_reperage timestamp CHECK (date <= now())	
+	date timestamp CHECK (date <= now())	
 );
 INSERT INTO shyeld.reperages (agent, superhero, coord_x, coord_y ,date) VALUES (1, 1, 5, 10, now()::TIMESTAMP);
 INSERT INTO shyeld.reperages (agent, superhero, coord_x, coord_y ,date) VALUES (1, 1, 19, 20, now()::TIMESTAMP);
@@ -155,7 +157,7 @@ BEGIN
 															OR date_part('day', age(s.date_derniere_apparition)) < 10)
 				AND 2 = (SELECT count(DISTINCT s1.clan) 
 					FROM shyeld.reperages r1
-					AND r.id_reperage = r1.id_reperage) LOOP
+					WHERE r.id_reperage = r1.id_reperage) LOOP
 		SELECT _zone.coord_x, _zone.coord_y INTO _sortie;
 		RETURN NEXT _sortie;
 		/* SELECTION ZONE ADJACENTE x + 1*/
@@ -211,7 +213,7 @@ DECLARE
 BEGIN
 	FOR _resume IN (SELECT * FROM shyeld.superheros s WHERE s.est_vivant = TRUE) LOOP
 		SELECT _resume.nom_superhero, _resume.nombre_victoires INTO _sortie;
-		RETURN NEXT _SORTIE;
+		RETURN NEXT _sortie;
 	END LOOP;
 	RETURN;
 END;
@@ -224,7 +226,23 @@ DECLARE
 BEGIN
 	FOR _resume IN (SELECT * FROM shyeld.superheros s WHERE s.est_vivant = TRUE) LOOP
 		SELECT _resume.nom_superhero, _resume.nombre_defaites INTO _sortie;
-		RETURN NEXT _SORTIE;
+		RETURN NEXT _sortie;
+	END LOOP;
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+/* ---> b) <--- */
+
+CREATE OR REPLACE FUNCTION classementReperages() RETURNS SETOF shyeld.resumeReperagePourAgent as $$
+DECLARE
+	_resume RECORD;
+	_sortie shyeld.resumeReperagePourAgent;
+BEGIN
+	FOR _resume IN (SELECT a.*, count(r.id_reperage) as "reperages"
+	 FROM shyeld.agents a, shyeld.reperages r WHERE a.id_agent = r.agent AND a.est_actif = TRUE GROUP BY a.id_agent) LOOP
+		SELECT _resume.nom, _resument.prenom, _resume.reperages INTO _sortie;
+		RETURN NEXT _sortie;
 	END LOOP;
 	RETURN;
 END;
