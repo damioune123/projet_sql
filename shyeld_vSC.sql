@@ -71,7 +71,7 @@ CREATE TABLE shyeld.reperages(
 	date timestamp CHECK (date <= now())	
 );
 
-/*
+
 --partie 1 inscription agent
 
 /********************************************************* FUNCTIONS **************************************************/
@@ -195,7 +195,6 @@ BEGIN
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
-SELECT * FROM shyeld.historiqueAgent(1, now()::timestamp- interval '200 min', now()::timestamp);
 
 /* ---------------- Partie 7 ----------------- */
 
@@ -242,7 +241,7 @@ BEGIN
 	RETURN;
 END;
 $$ LANGUAGE plpgsql;
-*/
+
 
 /************************************** INSERT INTO (META DONNEES) **************************************************************/
 INSERT INTO shyeld.superheros VALUES(DEFAULT,'HOARAU','Jonathan','A-Bomb','Pour le moment pas d idees 35 1000 Bruxelles','Radioactivité','Intuitive aptitude',3,37,95,'16/1/1974','M',19,25,true);
@@ -366,3 +365,5 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,10,7,1,34,'28/4/1968');
 INSERT INTO shyeld.reperages VALUES(DEFAULT,3,14,75,27,'27/8/1988');
 INSERT INTO shyeld.reperages VALUES(DEFAULT,1,19,37,5,'19/4/1975');
 INSERT INTO shyeld.reperages VALUES(DEFAULT,3,7,24,22,'13/3/1980');
+
+/***************************************** APPEL FONCTIONS ***********************************************************************/
