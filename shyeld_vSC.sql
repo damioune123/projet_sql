@@ -1,7 +1,4 @@
 ﻿DROP SCHEMA IF EXISTS shyeld CASCADE;
-DROP TYPE IF EXISTS  type_clan;
-DROP TYPE IF EXISTS  type_issue;
-DROP TYPE IF EXISTS  listesReperagesAgent;
 
 
 CREATE SCHEMA shyeld;
@@ -10,9 +7,12 @@ CREATE TYPE shyeld.type_clan AS ENUM('M','D');
 CREATE TYPE shyeld.type_issue AS ENUM('G','P','N');
 CREATE TYPE shyeld.row_visibilite AS (nom_superhero varchar(255), date_derniere_apparition timestamp, derniere_coordonneeX integer, derniere_coordonneeY integer);
 CREATE TYPE shyeld.row_zone AS (coord_x integer,coord_y integer);
-CREATE TYPE shyeld.listesReperagesAgent AS (id_superhero INTEGER, nom_superhero varchar(255), coord_x  INTEGER, coord_y  INTEGER, date timestamp);
+CREATE TYPE shyeld.listeReperagesAgent AS (id_superhero INTEGER, nom_superhero varchar(255), coord_x  INTEGER, coord_y  INTEGER, date timestamp);
 CREATE TYPE shyeld.resumeCombatPourHero AS (nom_superhero varchar(255), nombreVictoiresDefaites integer);
 CREATE TYPE shyeld.resumeReperagePourAgent AS (nom varchar(255), prenom varchar(255), nombreReperages integer);
+CREATE TYPE shyeld.listeCombatsParticipations AS (id_combat INTEGER, date_combat TIMESTAMP, coord_combatX INTEGER, coord_combatY INTEGER, nombre_participants INTEGER, 
+							nombre_gagnants INTEGER, nombre_neutres INTEGER , clan_vainqueur shyeld.type_clan, id_superhero INTEGER, nom_superhero varchar(255), issue
+							shyeld.type_issue);
 
 /************************************ CREATE TABLE ********************************************/
 
@@ -172,8 +172,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 -- PARTIE 6 Historique d'un agent
-CREATE OR REPLACE FUNCTION shyeld.historiqueAgent(INTEGER, TIMESTAMP, TIMESTAMP) RETURNS SETOF shyeld.listesReperagesAgent as $$
+CREATE OR REPLACE FUNCTION shyeld.historiqueReperagesAgent(INTEGER, TIMESTAMP, TIMESTAMP) RETURNS SETOF
+shyeld.listeReperagesAgent as $$
 DECLARE
 	_agentId ALIAS FOR $1;
 	_dateInf ALIAS FOR $2;
@@ -237,6 +239,30 @@ BEGIN
 	 FROM shyeld.agents a, shyeld.reperages r WHERE a.id_agent = r.agent AND a.est_actif = TRUE GROUP BY a.id_agent) LOOP
 		SELECT _resume.nom, _resument.prenom, _resume.reperages INTO _sortie;
 		RETURN NEXT _sortie;
+	END LOOP;
+	RETURN;
+END;
+$$ LANGUAGE plpgsql;
+--partie 7.d - statistiques : historique des combats entre deux dates données, avec la liste des participants, des perdants et des gagnants
+
+CREATE OR REPLACE FUNCTION shyeld.historiqueCombatsAgent(TIMESTAMP, TIMESTAMP) RETURNS SETOF
+shyeld.listeCombatsParticipations as $$
+DECLARE
+	_dateInf ALIAS FOR $1;
+	_dateSup ALIAS FOR $2;
+	_combat RECORD;
+	_participation RECORD;
+	_superhero RECORD;
+	_sortie RECORD;
+BEGIN
+	FOR _combat IN SELECT * FROM shyeld.combats c  WHERE c.date_combat >= _dateInf AND c.date_combat <= _dateSup LOOP
+		FOR _participation IN SELECT * FROM shyeld.participations LOOP
+			FOR _superhero IN SELECT * FROM shyeld.superheros sh WHERE sh.id_superhero = _participation.superhero LOOP
+				SELECT _combat.id_combat, _combat.date_combat, _combat.coord_combatX, _combat.coord_combatY , _combat.nombre_participants , _combat.nombre_perdants ,
+					_combat.nombre_neutres , _combat.clan_vainqueur, _participation.superhero, _superhero.nom_superhero, _participation.issue INTO _sortie;
+				RETURN NEXT _sortie;
+			END LOOP;
+		END LOOP;		
 	END LOOP;
 	RETURN;
 END;
@@ -378,5 +404,5 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,5,4,100,81,'1950/12/22');
 INSERT INTO shyeld.reperages VALUES(DEFAULT,1,1,13,76,'1952/10/1');
 INSERT INTO shyeld.reperages VALUES(DEFAULT,9,19,15,80,'1967/6/19');
 
-
 /***************************************** APPEL FONCTIONS ***********************************************************************/
+SELECT * FROM shyeld.historiqueCombatsAgent( now()::timestamp- interval '2000000000 min', now()::timestamp);
