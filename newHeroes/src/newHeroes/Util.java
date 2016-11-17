@@ -91,8 +91,8 @@ public class Util {
 	public static int NOMBRE_NEUTRES = 5;
 	
 	public static SuperHero createNewHero(){
-		String date = "" + unEntierAuHasardEntre(1, 28) + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1950, 2000);
+		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
+				unEntierAuHasardEntre(1, 28);
 		SuperHero superhero = new SuperHero(compteurHero, NOM[unEntierAuHasardEntre(0, NOM.length - 1)],
 				PRENOM[unEntierAuHasardEntre(0, PRENOM.length - 1)], SUPERHERO[compteurHero],
 				"Pour le moment pas d idees 35 1000 Bruxelles",ORIGINE[unEntierAuHasardEntre(0, ORIGINE.length - 1)],
@@ -104,8 +104,8 @@ public class Util {
 	}
 	
 	public static Agent createNewAgent(){
-		String date = "" + unEntierAuHasardEntre(1, 28) + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1950, 2000);
+		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
+				unEntierAuHasardEntre(1, 28);
 		Agent agent = new Agent(compteurAgent, PRENOM[unEntierAuHasardEntre(0, PRENOM.length - 1)],
 				NOM[unEntierAuHasardEntre(0, NOM.length - 1)], date, true);
 		compteurAgent++;
@@ -113,8 +113,8 @@ public class Util {
 	}
 	
 	public static Combat createNewCombat(){
-		String date = "" + unEntierAuHasardEntre(1, 28) + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1950, 2000);
+		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
+				unEntierAuHasardEntre(1, 28);
 		Combat combat = new Combat(compteurCombat, date, unEntierAuHasardEntre(0, COORD_MAX), unEntierAuHasardEntre(0, COORD_MAX),
 				unEntierAuHasardEntre(1, compteurAgent), unEntierAuHasardEntre(0, NOMBRE_HEROS),
 				unEntierAuHasardEntre(0, NOMBRE_GAGNANTS), unEntierAuHasardEntre(0, NOMBRE_PERDANTS),
@@ -130,8 +130,8 @@ public class Util {
 	}
 	
 	public static Reperage createNewReperage() {
-		String date = "" + unEntierAuHasardEntre(1, 28) + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1950, 2000);
+		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
+				unEntierAuHasardEntre(1, 28);
 		Reperage reperage = new Reperage(compteurReperage, unEntierAuHasardEntre(1, compteurAgent),
 				unEntierAuHasardEntre(1, compteurHero),
 				unEntierAuHasardEntre(0, COORD_MAX), unEntierAuHasardEntre(0, COORD_MAX), date);
