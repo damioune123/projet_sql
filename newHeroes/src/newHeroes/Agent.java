@@ -6,21 +6,26 @@ public class Agent {
 	private String prenom;
 	private String nom;
 	private String dateMiseService;
+	private String identifiant;
+	private String mdpSha256;
+	private int nombreRapport;
 	private boolean estActif;
-	String identifant;
-	String mdp_sha256;
-	int nbre_rapport;
-	
-	public Agent(int idAgent, String prenom, String nom, String dateMiseService,String identifant, String mdp_sha256, int nbre_rapport, boolean estActif) {
+
+	public Agent(int idAgent, String prenom, String nom, String dateMiseService, String mdpSha256, int nombreRapport,
+			boolean estActif) {
 		super();
 		this.idAgent = idAgent;
 		this.prenom = prenom;
 		this.nom = nom;
 		this.dateMiseService = dateMiseService;
+		this.identifiant = "" + nom + idAgent;
+		this.mdpSha256 = mdpSha256;
+		this.nombreRapport = nombreRapport;
 		this.estActif = estActif;
-		this.identifant = identifant;
-		this.mdp_sha256 = mdp_sha256;
-		this.nbre_rapport = nbre_rapport;
+	}
+
+	public String getIdentifiant() {
+		return identifiant;
 	}
 
 	public int getIdAgent() {
@@ -43,32 +48,16 @@ public class Agent {
 		return estActif;
 	}
 	
-	public String getIdentifant() {
-		return identifant;
+	public String getMdpSha256() {
+		return mdpSha256;
 	}
 
-	public void setIdentifant(String identifant) {
-		this.identifant = identifant;
+	public int getNombreRapport() {
+		return nombreRapport;
 	}
-
-	public String getMdp_sha256() {
-		return mdp_sha256;
-	}
-
-	public void setMdp_sha256(String mdp_sha256) {
-		this.mdp_sha256 = mdp_sha256;
-	}
-
-	public int getNbre_rapport() {
-		return nbre_rapport;
-	}
-
-	public void setNbre_rapport(int nbre_rapport) {
-		this.nbre_rapport = nbre_rapport;
-	}
-
+	
 	public String insertIntoAgent(){
 		return "INSERT INTO shyeld.agents VALUES(DEFAULT,'" + this.prenom + "','" + this.nom + "','" + this.dateMiseService +
-				"','" +this.identifant+"','"+this.mdp_sha256+"',"+this.nbre_rapport +","+ this.estActif + ");\n";
+				"','" + this.identifiant + "','" + this.mdpSha256 + "'," + this.nombreRapport + "," + this.estActif + ");\n";
 	}
 }

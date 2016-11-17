@@ -5,18 +5,6 @@ import java.util.Random;
 public class Util {
 	
 	public static Random numRandom = new Random();
-	public static String generateString(int length)
-	{
-		    String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"; // Tu supprimes les lettres dont tu ne veux pas
-		    String pass = "";
-		    for(int x=0;x<length;x++)
-		    {
-		       int i = (int)Math.floor(Math.random() * 62); // Si tu supprimes des lettres tu diminues ce nb
-		       pass += chars.charAt(i);
-		    }
-		    System.out.println(pass);
-		    return pass;
-	}
 	public static final String[] NOM = { "MARTIN", "BERNARD", "THOMAS", "PETIT", "ROBERT", "RICHARD", "DURAND",
 			"DUBOIS", "MOREAU", "LAURENT", "SIMON", "MICHEL", "LEFEBVRE", "LEROY", "ROUX", "DAVID", "BERTRAND", "MOREL",
 			"FOURNIER", "GIRARD", "BONNET", "DUPONT", "LAMBERT", "FONTAINE", "ROUSSEAU", "VINCENT", "MULLER", "LEFEVRE",
@@ -39,17 +27,17 @@ public class Util {
 			"BARTHELEMY", "CORDIER", "PICHON", "LEJEUNE", "GILBERT", "LAMY", "DELAUNAY", "PASQUIER", "CARLIER",
 			"LAPORTE" };
 	public static final String[] PRENOM = { "Adam", "Alex", "Alexandre", "Alexis", "Anthony", "Antoine", "Benjamin",
-			"Cï¿½dric", "Charles", "Christopher", "David", "Dylan", "ï¿½douard", "Elliot", "ï¿½mile", "ï¿½tienne", "Fï¿½lix",
-			"Gabriel", "Guillaume", "Hugo", "Isaac", "Jacob", "Jï¿½rï¿½my", "Jonathan", "Julien", "Justin", "Lï¿½o", "Logan",
-			"Loï¿½c", "Louis", "Lucas", "Ludovic", "Malik", "Mathieu", "Mathis", "Maxime", "Michaï¿½l", "Nathan", "Nicolas",
-			"Noah", "Olivier", "Philippe", "Raphaï¿½l", "Samuel", "Simon", "Thomas", "Tommy", "Tristan", "Victor",
-			"Vincent", "Alexia", "Alice", "Alicia", "Amï¿½lie", "Anaï¿½s", "Annabelle", "Arianne", "Audrey", "Aurï¿½lie",
-			"Camille", "Catherine", "Charlotte", "Chloï¿½", "Clara", "Coralie", "Daphnï¿½e", "Delphine", "Elizabeth",
-			"ï¿½lodie", "ï¿½milie", "Emma", "Emy", "ï¿½ve", "Florence", "Gabrielle", "Jade", "Juliette", "Justine",
-			"Laurence", "Laurie", "Lï¿½a", "Lï¿½anne", "Maï¿½lie", "Maï¿½va", "Maika", "Marianne", "Marilou", "Maude", "Maya",
-			"Mï¿½gan", "Mï¿½lodie", "Mia", "Noï¿½mie", "Ocï¿½ane", "Olivia", "Rosalie", "Rose", "Sarah", "Sofia", "Victoria" };
-	public static final String[] ORIGINE = { "Alien", "Parasite", "Genetique", "Radioactivitï¿½", "Experiences",
-			"Entrainement", "Potentiel cachï¿½" };
+			"Cédric", "Charles", "Christopher", "David", "Dylan", "Édouard", "Elliot", "Émile", "Étienne", "Félix",
+			"Gabriel", "Guillaume", "Hugo", "Isaac", "Jacob", "Jérémy", "Jonathan", "Julien", "Justin", "Léo", "Logan",
+			"Loïc", "Louis", "Lucas", "Ludovic", "Malik", "Mathieu", "Mathis", "Maxime", "Michaël", "Nathan", "Nicolas",
+			"Noah", "Olivier", "Philippe", "Raphaël", "Samuel", "Simon", "Thomas", "Tommy", "Tristan", "Victor",
+			"Vincent", "Alexia", "Alice", "Alicia", "Amélie", "Anaïs", "Annabelle", "Arianne", "Audrey", "Aurélie",
+			"Camille", "Catherine", "Charlotte", "Chloé", "Clara", "Coralie", "Daphnée", "Delphine", "Elizabeth",
+			"Élodie", "Émilie", "Emma", "Emy", "Ève", "Florence", "Gabrielle", "Jade", "Juliette", "Justine",
+			"Laurence", "Laurie", "Léa", "Léanne", "Maélie", "Maéva", "Maika", "Marianne", "Marilou", "Maude", "Maya",
+			"Mégan", "Mélodie", "Mia", "Noémie", "Océane", "Olivia", "Rosalie", "Rose", "Sarah", "Sofia", "Victoria" };
+	public static final String[] ORIGINE = { "Alien", "Parasite", "Genetique", "Radioactivité", "Experiences",
+			"Entrainement", "Potentiel caché" };
 	public static final String[] TYPE = { "Ability absorption", "Ability augmentation", "Ability replication",
 			"Accelerated probability", "Acid secretion", "Acidic blood", "Activation and deactivation",
 			"Adoptive muscle memory", "Age shifting", "Age transferal", "Alchemy", "Alejandro_s ability",
@@ -101,10 +89,12 @@ public class Util {
 	public static int NOMBRE_GAGNANTS = 10;
 	public static int NOMBRE_PERDANTS = 10;
 	public static int NOMBRE_NEUTRES = 5;
+	public static int NOMBRE_RAPPORTS = 25;
+	public static String MOT_DE_PASSE = "123456";
+	public static int[] participations = new int[Generation.NOMBRE_COMBATS];
 	
 	public static SuperHero createNewHero(){
-		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1, 28);
+		String date = date();
 		SuperHero superhero = new SuperHero(compteurHero, NOM[unEntierAuHasardEntre(0, NOM.length - 1)],
 				PRENOM[unEntierAuHasardEntre(0, PRENOM.length - 1)], SUPERHERO[compteurHero],
 				"Pour le moment pas d idees 35 1000 Bruxelles",ORIGINE[unEntierAuHasardEntre(0, ORIGINE.length - 1)],
@@ -116,17 +106,15 @@ public class Util {
 	}
 	
 	public static Agent createNewAgent(){
-		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1, 28);
+		String date = date();
 		Agent agent = new Agent(compteurAgent, PRENOM[unEntierAuHasardEntre(0, PRENOM.length - 1)],
-				NOM[unEntierAuHasardEntre(0, NOM.length - 1)], date,generateString(10), generateString(10),0, true);
+				NOM[unEntierAuHasardEntre(0, NOM.length - 1)], date, MOT_DE_PASSE, unEntierAuHasardEntre(0, NOMBRE_RAPPORTS) ,true);
 		compteurAgent++;
 		return agent;
 	}
 	
 	public static Combat createNewCombat(){
-		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1, 28);
+		String date = date();
 		Combat combat = new Combat(compteurCombat, date, unEntierAuHasardEntre(0, COORD_MAX), unEntierAuHasardEntre(0, COORD_MAX),
 				unEntierAuHasardEntre(1, compteurAgent), unEntierAuHasardEntre(0, NOMBRE_HEROS),
 				unEntierAuHasardEntre(0, NOMBRE_GAGNANTS), unEntierAuHasardEntre(0, NOMBRE_PERDANTS),
@@ -137,18 +125,23 @@ public class Util {
 	
 	public static Participation createNewParticipation(int compteur) {
 		Participation participation = new Participation(compteur,
-				compteurCombat, ISSUE[unEntierAuHasardEntre(0, ISSUE.length - 1)]);
+				compteurCombat, ISSUE[unEntierAuHasardEntre(0, ISSUE.length - 1)], participations[compteurCombat - 1]);
+		participations[compteurCombat - 1]++;
 		return participation;
 	}
 	
 	public static Reperage createNewReperage() {
-		String date = "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
-				unEntierAuHasardEntre(1, 28);
+		String date = date();
 		Reperage reperage = new Reperage(compteurReperage, unEntierAuHasardEntre(1, compteurAgent),
 				unEntierAuHasardEntre(1, compteurHero),
 				unEntierAuHasardEntre(0, COORD_MAX), unEntierAuHasardEntre(0, COORD_MAX), date);
 		compteurReperage++;
 		return reperage;
+	}
+	
+	public static String date(){
+		return "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
+				unEntierAuHasardEntre(1, 28);
 	}
 	
 	public static int unEntierAuHasardEntre (int valeurMinimale, int valeurMaximale){

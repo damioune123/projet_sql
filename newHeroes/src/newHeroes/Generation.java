@@ -8,10 +8,10 @@ import java.util.ArrayList;
 public class Generation {
 	
 	private ArrayList<SuperHero> superheros = new ArrayList<SuperHero>();
-	private static int NOMBRE_SUPERHEROS = 20;
-	private static int NOMBRE_AGENTS = 10;
-	private static int NOMBRE_COMBATS = 10;
-	private static int NOMBRE_REPERAGES = 15;
+	public static int NOMBRE_SUPERHEROS = 20;
+	public static int NOMBRE_AGENTS = 10;
+	public static int NOMBRE_COMBATS = 10;
+	public static int NOMBRE_REPERAGES = 15;
 
 	public static void main(String[] args) {
 		
