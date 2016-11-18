@@ -145,6 +145,10 @@ DECLARE
 	_estVivant ALIAS FOR $14;
 	_id integer := 0;
 BEGIN
+	IF EXISTS (SELECT s.* FROM shyeld.superheros s WHERE s.nom_superhero = _nomSuperHero AND s.est_vivant = TRUE) THEN
+		RAISE foreign_key_violation;
+	END IF;
+
 	INSERT INTO shyeld.superheros VALUES (DEFAULT, _nom, _prenom, _nomSuperHero, _adressePrivee, _origine, _typeSuperPouvoir, _puissanceSuperPouvoir,
 		_coordX, _coordY, _date, _clan, _nombreVictoires, _nombreDefaites, _estVivant) RETURNING id_superhero INTO _id;
 	RETURN _id;
@@ -520,3 +524,6 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,9,2,93,82,'1990/5/8');
 
 /***************************************** APPEL FONCTIONS ***********************************************************************/
 SELECT * FROM shyeld.historiqueCombatsAgent( now()::timestamp- interval '2000000000 min', now()::timestamp);
+
+SELECT creation_superhero('GUILLAUME','Thomas','Adamo','Pour le moment pas d idees 35 1000 Bruxelles','Genetique','Silicon manipulation',9,26,94,'1955/3/14','M',12,15,true);
+
