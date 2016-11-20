@@ -14,11 +14,13 @@ public class Generation {
 	public static int NOMBRE_REPERAGES = 15;
 
 	public static void main(String[] args) {
-		
+		ArrayList<SuperHero> listeMarvelle = new ArrayList<SuperHero>();
+		ArrayList<SuperHero> listeDC = new ArrayList<SuperHero>();
 		String text = "";
-		
 		for(int i = 0; i < NOMBRE_SUPERHEROS; i++){
 			SuperHero superhero = Util.createNewHero();
+			if(superhero.getClan()=='M') listeMarvelle.add(superhero);
+			else if(superhero.getClan()=='D') listeDC.add(superhero);
 			text += superhero.insertIntoSuperHero();
 		}
 		
@@ -32,18 +34,117 @@ public class Generation {
 		text += "\n";
 		
 		for(int i = 0; i < NOMBRE_COMBATS; i++){
-			Combat combat = Util.createNewCombat();
+			text += "BEGIN;\n";
+			char clanGagnant = Util.CLAN[Util.unEntierAuHasardEntre(0, Util.CLAN.length - 1)];
+			Combat combat = Util.createNewCombat(clanGagnant, listeMarvelle.size(), listeDC.size());
+			ArrayList<SuperHero> dejaPrisMarvelle = new ArrayList<SuperHero>();
+			ArrayList<SuperHero> dejaPrisDC = new ArrayList<SuperHero>();
 			text += combat.insertIntoCombats();
-			int alea = Util.unEntierAuHasardEntre(4, 8);
-			int compteur = Util.unEntierAuHasardEntre(9, Util.compteurHero) - 8;
-			for(int j = 0; j < alea; j++){
-				Participation participation = Util.createNewParticipation(compteur);
-				text += participation.insertIntoParticipation();
-				compteur++;
+			if(combat.getClan() =='M'){	
+				for(int j=0 ; j < combat.getNombreGagnants() ; j++){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);	
+					
+					while(dejaPrisMarvelle.contains(listeMarvelle.get(indiceAuHasard))){
+						indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);
+					}
+					dejaPrisMarvelle.add(listeMarvelle.get(indiceAuHasard));
+					Participation participation = new Participation(listeMarvelle.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'G', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+					
+				}
+				for(int j=0 ; j < combat.getNombrePerdants() ; j++){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					while(dejaPrisDC.contains(listeDC.get(indiceAuHasard))){
+						indiceAuHasard =Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					}
+					dejaPrisDC.add(listeDC.get(indiceAuHasard));
+					Participation participation = new Participation(listeDC.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'P', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+				}
+				
+				int compteur =0;
+				while(compteur < combat.getNombreNeutres() && dejaPrisDC.size()< listeDC.size()){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					while(dejaPrisDC.contains(listeDC.get(indiceAuHasard))){
+						indiceAuHasard =Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					}
+					dejaPrisDC.add(listeDC.get(indiceAuHasard));
+					Participation participation = new Participation(listeDC.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'N', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+					compteur++;
+				}
+				while(compteur < combat.getNombreNeutres() && dejaPrisMarvelle.size()< listeMarvelle.size()){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);	
+					
+					while(dejaPrisMarvelle.contains(listeMarvelle.get(indiceAuHasard))){
+						indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);
+					}
+					dejaPrisMarvelle.add(listeMarvelle.get(indiceAuHasard));
+					Participation participation = new Participation(listeMarvelle.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'N', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+					compteur++;
+				}
+				
 			}
+			if(combat.getClan() =='D'){	
+				for(int j=0 ; j < combat.getNombreGagnants() ; j++){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					while(dejaPrisDC.contains(listeDC.get(indiceAuHasard))){
+						indiceAuHasard =Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					}
+					dejaPrisDC.add(listeDC.get(indiceAuHasard));
+					Participation participation = new Participation(listeDC.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'G', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+					
+					
+				}
+				for(int j=0 ; j < combat.getNombrePerdants() ; j++){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);	
+					
+					while(dejaPrisMarvelle.contains(listeMarvelle.get(indiceAuHasard))){
+						indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);
+					}
+					dejaPrisMarvelle.add(listeMarvelle.get(indiceAuHasard));
+					Participation participation = new Participation(listeMarvelle.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'P', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+					
+				}
+				
+				int compteur =0;
+				while(compteur < combat.getNombreNeutres() && dejaPrisDC.size()< listeDC.size()){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					while(dejaPrisDC.contains(listeDC.get(indiceAuHasard))){
+						indiceAuHasard =Util.unEntierAuHasardEntre(0, listeDC.size()-1);
+					}
+					dejaPrisDC.add(listeDC.get(indiceAuHasard));
+					Participation participation = new Participation(listeDC.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'N', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+					compteur++;
+				}
+				while(compteur < combat.getNombreNeutres() && dejaPrisMarvelle.size()< listeMarvelle.size()){
+					int indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);	
+					
+					while(dejaPrisMarvelle.contains(listeMarvelle.get(indiceAuHasard))){
+						indiceAuHasard = Util.unEntierAuHasardEntre(0, listeMarvelle.size()-1);
+					}
+					dejaPrisMarvelle.add(listeMarvelle.get(indiceAuHasard));
+					Participation participation = new Participation(listeMarvelle.get(indiceAuHasard).getIdSuperhero(), combat.getIdCombat(), 'N', Util.PARTICIPATIONS[Util.compteurCombat - 1]);
+					Util.PARTICIPATIONS[Util.compteurCombat - 1]++;
+					text += participation.insertIntoParticipation();
+					compteur++;
+				}
+				
+			}
+			text += "COMMIT;\n";
 			text += "\n";
 		}
-		
 		text += "\n";
 		
 		for(int i = 0; i < NOMBRE_REPERAGES; i++) {

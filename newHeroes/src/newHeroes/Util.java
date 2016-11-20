@@ -27,17 +27,17 @@ public class Util {
 			"BARTHELEMY", "CORDIER", "PICHON", "LEJEUNE", "GILBERT", "LAMY", "DELAUNAY", "PASQUIER", "CARLIER",
 			"LAPORTE" };
 	public static final String[] PRENOM = { "Adam", "Alex", "Alexandre", "Alexis", "Anthony", "Antoine", "Benjamin",
-			"Cédric", "Charles", "Christopher", "David", "Dylan", "Édouard", "Elliot", "Émile", "Étienne", "Félix",
-			"Gabriel", "Guillaume", "Hugo", "Isaac", "Jacob", "Jérémy", "Jonathan", "Julien", "Justin", "Léo", "Logan",
-			"Loïc", "Louis", "Lucas", "Ludovic", "Malik", "Mathieu", "Mathis", "Maxime", "Michaël", "Nathan", "Nicolas",
-			"Noah", "Olivier", "Philippe", "Raphaël", "Samuel", "Simon", "Thomas", "Tommy", "Tristan", "Victor",
-			"Vincent", "Alexia", "Alice", "Alicia", "Amélie", "Anaïs", "Annabelle", "Arianne", "Audrey", "Aurélie",
-			"Camille", "Catherine", "Charlotte", "Chloé", "Clara", "Coralie", "Daphnée", "Delphine", "Elizabeth",
-			"Élodie", "Émilie", "Emma", "Emy", "Ève", "Florence", "Gabrielle", "Jade", "Juliette", "Justine",
-			"Laurence", "Laurie", "Léa", "Léanne", "Maélie", "Maéva", "Maika", "Marianne", "Marilou", "Maude", "Maya",
-			"Mégan", "Mélodie", "Mia", "Noémie", "Océane", "Olivia", "Rosalie", "Rose", "Sarah", "Sofia", "Victoria" };
-	public static final String[] ORIGINE = { "Alien", "Parasite", "Genetique", "Radioactivité", "Experiences",
-			"Entrainement", "Potentiel caché" };
+			"Cï¿½dric", "Charles", "Christopher", "David", "Dylan", "ï¿½douard", "Elliot", "ï¿½mile", "ï¿½tienne", "Fï¿½lix",
+			"Gabriel", "Guillaume", "Hugo", "Isaac", "Jacob", "Jï¿½rï¿½my", "Jonathan", "Julien", "Justin", "Lï¿½o", "Logan",
+			"Loï¿½c", "Louis", "Lucas", "Ludovic", "Malik", "Mathieu", "Mathis", "Maxime", "Michaï¿½l", "Nathan", "Nicolas",
+			"Noah", "Olivier", "Philippe", "Raphaï¿½l", "Samuel", "Simon", "Thomas", "Tommy", "Tristan", "Victor",
+			"Vincent", "Alexia", "Alice", "Alicia", "Amï¿½lie", "Anaï¿½s", "Annabelle", "Arianne", "Audrey", "Aurï¿½lie",
+			"Camille", "Catherine", "Charlotte", "Chloï¿½", "Clara", "Coralie", "Daphnï¿½e", "Delphine", "Elizabeth",
+			"ï¿½lodie", "ï¿½milie", "Emma", "Emy", "ï¿½ve", "Florence", "Gabrielle", "Jade", "Juliette", "Justine",
+			"Laurence", "Laurie", "Lï¿½a", "Lï¿½anne", "Maï¿½lie", "Maï¿½va", "Maika", "Marianne", "Marilou", "Maude", "Maya",
+			"Mï¿½gan", "Mï¿½lodie", "Mia", "Noï¿½mie", "Ocï¿½ane", "Olivia", "Rosalie", "Rose", "Sarah", "Sofia", "Victoria" };
+	public static final String[] ORIGINE = { "Alien", "Parasite", "Genetique", "Radioactivitï¿½", "Experiences",
+			"Entrainement", "Potentiel cachï¿½" };
 	public static final String[] TYPE = { "Ability absorption", "Ability augmentation", "Ability replication",
 			"Accelerated probability", "Acid secretion", "Acidic blood", "Activation and deactivation",
 			"Adoptive muscle memory", "Age shifting", "Age transferal", "Alchemy", "Alejandro_s ability",
@@ -86,47 +86,58 @@ public class Util {
 	public static int compteurReperage = 0;
 	public static int COORD_MAX = 100;
 	public static int NOMBRE_HEROS = 20;
-	public static int NOMBRE_GAGNANTS = 10;
-	public static int NOMBRE_PERDANTS = 10;
-	public static int NOMBRE_NEUTRES = 5;
 	public static int NOMBRE_RAPPORTS = 25;
-	public static String MOT_DE_PASSE = "123456";
-	public static int[] participations = new int[Generation.NOMBRE_COMBATS];
+	public static String MOT_DE_PASSE = "f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9";//azerty en sha256
+	public static int[] PARTICIPATIONS = new int[Generation.NOMBRE_COMBATS];
 	
 	public static SuperHero createNewHero(){
 		String date = date();
-		SuperHero superhero = new SuperHero(compteurHero, NOM[unEntierAuHasardEntre(0, NOM.length - 1)],
+		SuperHero superhero = new SuperHero(compteurHero+1, NOM[unEntierAuHasardEntre(0, NOM.length - 1)],
 				PRENOM[unEntierAuHasardEntre(0, PRENOM.length - 1)], SUPERHERO[compteurHero],
 				"Pour le moment pas d idees 35 1000 Bruxelles",ORIGINE[unEntierAuHasardEntre(0, ORIGINE.length - 1)],
 				TYPE[unEntierAuHasardEntre(0, TYPE.length - 1)], PUISSANCE[unEntierAuHasardEntre(0, PUISSANCE.length - 1)],
 				unEntierAuHasardEntre(0, COORD_MAX), unEntierAuHasardEntre(0, COORD_MAX), date, CLAN[unEntierAuHasardEntre(0, CLAN.length - 1)],
-				unEntierAuHasardEntre(0, 20), unEntierAuHasardEntre(0, 25), true);
+				unEntierAuHasardEntre(0, 0), unEntierAuHasardEntre(0, 0), true);
 		compteurHero++;
 		return superhero;
 	}
 	
 	public static Agent createNewAgent(){
 		String date = date();
-		Agent agent = new Agent(compteurAgent, PRENOM[unEntierAuHasardEntre(0, PRENOM.length - 1)],
+		Agent agent = new Agent(compteurAgent+1, PRENOM[unEntierAuHasardEntre(0, PRENOM.length - 1)],
 				NOM[unEntierAuHasardEntre(0, NOM.length - 1)], date, MOT_DE_PASSE, unEntierAuHasardEntre(0, NOMBRE_RAPPORTS) ,true);
 		compteurAgent++;
 		return agent;
 	}
 	
-	public static Combat createNewCombat(){
+	public static Combat createNewCombat(char clanGagnant, int nombreHerosMarvelle, int nombreHerosDc){
 		String date = date();
-		Combat combat = new Combat(compteurCombat, date, unEntierAuHasardEntre(0, COORD_MAX), unEntierAuHasardEntre(0, COORD_MAX),
-				unEntierAuHasardEntre(1, compteurAgent), unEntierAuHasardEntre(0, NOMBRE_HEROS),
-				unEntierAuHasardEntre(0, NOMBRE_GAGNANTS), unEntierAuHasardEntre(0, NOMBRE_PERDANTS),
-				unEntierAuHasardEntre(0, NOMBRE_NEUTRES), CLAN[unEntierAuHasardEntre(0, CLAN.length - 1)]);
+		int nombre_gagnants=0;
+		int nombre_participants = 0;
+		int nombre_perdants = 0; 
+		if(clanGagnant == 'M') {
+			nombre_gagnants = unEntierAuHasardEntre(1, nombreHerosMarvelle-1);
+			nombre_perdants =unEntierAuHasardEntre(1, nombreHerosDc-1);
+			
+		}
+		if(clanGagnant == 'D'){
+			nombre_gagnants = unEntierAuHasardEntre(1, nombreHerosDc-1);
+			nombre_perdants =unEntierAuHasardEntre(1, nombreHerosMarvelle-1);
+		}
+		nombre_participants = unEntierAuHasardEntre((nombre_gagnants +nombre_perdants), NOMBRE_HEROS);
+		int nombre_neutres = nombre_participants - nombre_gagnants - nombre_perdants;
+		Combat combat = new Combat(compteurCombat+1, date, unEntierAuHasardEntre(0, COORD_MAX), unEntierAuHasardEntre(0, COORD_MAX),
+				unEntierAuHasardEntre(1, compteurAgent), nombre_participants,
+				nombre_gagnants, nombre_perdants,
+				nombre_neutres, clanGagnant);
 		compteurCombat++;
 		return combat;
 	}
 	
 	public static Participation createNewParticipation(int compteur) {
 		Participation participation = new Participation(compteur,
-				compteurCombat, ISSUE[unEntierAuHasardEntre(0, ISSUE.length - 1)], participations[compteurCombat - 1]);
-		participations[compteurCombat - 1]++;
+				compteurCombat, ISSUE[unEntierAuHasardEntre(0, ISSUE.length - 1)], PARTICIPATIONS[compteurCombat - 1]);
+		PARTICIPATIONS[compteurCombat - 1]++;
 		return participation;
 	}
 	
@@ -140,7 +151,7 @@ public class Util {
 	}
 	
 	public static String date(){
-		return "" +	unEntierAuHasardEntre(1950, 2000)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
+		return "" +	unEntierAuHasardEntre(2000, 2015)  + "/" + unEntierAuHasardEntre(1, 12) + "/" +
 				unEntierAuHasardEntre(1, 28);
 	}
 	
