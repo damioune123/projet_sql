@@ -517,6 +517,7 @@ SELECT r.*
 FROM shyeld.reperages r;
 /*********************************************************SIGNIN, ACCESS AND APP_USERS **************************************************/
 --fonction pour la connexion d'un agent ==> a vérifier après cours de grolaux sur le sujet
+/*
 CREATE OR REPLACE FUNCTION shyeld.connexionAgent(VARCHAR(255), VARCHAR(512))  RETURNS INTEGER AS $$
 DECLARE
 	_agent RECORD;
@@ -549,7 +550,7 @@ BEGIN
 	RETURN 0;
 END;
 $$  LANGUAGE plpgsql; 
-
+*/
 
 
 /************************************** INSERT INTO (META DONNEES) **************************************************************/
@@ -820,7 +821,7 @@ SELECT shyeld.creation_participation(21,11, 'G');
 SELECT shyeld.creation_participation(22,11, 'P'); -- retour num ligne à 1 ? qu'est-ce que num ligne ?
 COMMIT;
 
-SELECT shyeld.connexionAgent('LAURENT1', 'azerty'); 
+--SELECT shyeld.connexionAgent('LAURENT1', 'azerty'); 
 --DIVERS
 SELECT * FROM shyeld.affichageAgents;
 SELECT * FROM shyeld.affichageCombats;
