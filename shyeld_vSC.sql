@@ -799,18 +799,21 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,1,13,79,94,'2014/4/16');
 /***************************************** APPEL FONCTIONS ***********************************************************************/
 --appel fonctions/vue applcation shyeld
 SELECT shyeld.inscription_agent('Meur', 'Damien', 'dams', 'f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9');
+
 SELECT shyeld.supprimerAgent(2);
-SELECT * FROM shyeld.perte_visibilite;
-SELECT * FROM shyeld.zone_conflit;
+SELECT * FROM shyeld.perte_visibilite;/*
+SELECT * FROM shyeld.zone_conflit; 
 SELECT * FROM shyeld.historiqueReperagesAgent(1, now()::timestamp- interval '200000 min', now()::timestamp);
 
 SELECT * FROM shyeld.classementVictoires;
+
 SELECT * FROM shyeld.classementDefaites;
 SELECT * FROM shyeld.classementReperages; 
+
 SELECT * FROM shyeld.historiqueCombatsParticipations(now()::timestamp- interval '2000000 min', now()::timestamp);
 
---appel fonctions/vue applcation agent
-SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero('Bomb');
+--appel fonctions/vue applcation agent 
+SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(''); 
 SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(''); --> pour faire une recherche de tous les super-heros
 SELECT shyeld.creation_superhero('chris','sacre', 'ironman', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'M', 0, 0, 'true');
 SELECT shyeld.creation_superhero('meur','damien', 'spidermaan', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'D', 0, 0, 'true');
@@ -825,7 +828,7 @@ COMMIT;
 --DIVERS
 SELECT * FROM shyeld.affichageAgents;
 SELECT * FROM shyeld.affichageCombats;
-SELECT * FROM shyeld.affichageReperages;
+SELECT * FROM shyeld.affichageReperages;*/
 
 
 
