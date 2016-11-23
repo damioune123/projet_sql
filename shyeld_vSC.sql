@@ -218,7 +218,7 @@ FROM shyeld.agents a, shyeld.reperages r
 WHERE a.id_agent = r.agent 
 AND a.est_actif = TRUE 
 GROUP BY a.id_agent
-ORDER BY count(r.id_reperage) DESC;
+ORDER BY count(r.id_reperage) DESC; /* TO DO */
 
 --partie SHYELD 7.c - statistiques : historique des combats entre deux dates données, avec la liste des participants, des perdants et des gagnants
 
@@ -384,6 +384,23 @@ BEGIN
 
 	EXCEPTION 
 		WHEN check_violation THEN RAISE EXCEPTION 'participation incorrecte';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION shyeld.check_si_combat(timestamp, integer, integer) RETURNS integer as $$
+DECLARE 
+	_date ALIAS FOR $1;
+	_coordX ALIAS FOR $2;
+	_coordY ALIAS FOR $3;
+BEGIN
+	IF EXISTS (SELECT c.* FROM shyeld.combats c WHERE c.date_combat = _date AND c.coord_combatX = _coordX AND c.coord_combatY = _coordY) THEN
+		RETURN (SELECT c.id_combat FROM shyeld.combats c WHERE c.date_combat = _date AND c.coord_combatX = _coordX AND c.coord_combatY = _coordY);
+	END IF;
+
+	RETURN -1;
+
+	EXCEPTION
+			WHEN check_violation THEN RAISE EXCEPTION 'erreur fonction';
 END;
 $$ LANGUAGE plpgsql;
 /***************************************** TRIGGERS ***********************************************************************/
@@ -799,21 +816,18 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,1,13,79,94,'2014/4/16');
 /***************************************** APPEL FONCTIONS ***********************************************************************/
 --appel fonctions/vue applcation shyeld
 SELECT shyeld.inscription_agent('Meur', 'Damien', 'dams', 'f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9');
-
 SELECT shyeld.supprimerAgent(2);
-SELECT * FROM shyeld.perte_visibilite;/*
-SELECT * FROM shyeld.zone_conflit; 
+SELECT * FROM shyeld.perte_visibilite;
+SELECT * FROM shyeld.zone_conflit;
 SELECT * FROM shyeld.historiqueReperagesAgent(1, now()::timestamp- interval '200000 min', now()::timestamp);
 
 SELECT * FROM shyeld.classementVictoires;
-
 SELECT * FROM shyeld.classementDefaites;
 SELECT * FROM shyeld.classementReperages; 
-
 SELECT * FROM shyeld.historiqueCombatsParticipations(now()::timestamp- interval '2000000 min', now()::timestamp);
 
---appel fonctions/vue applcation agent 
-SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(''); 
+--appel fonctions/vue applcation agent
+SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero('Bomb');
 SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(''); --> pour faire une recherche de tous les super-heros
 SELECT shyeld.creation_superhero('chris','sacre', 'ironman', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'M', 0, 0, 'true');
 SELECT shyeld.creation_superhero('meur','damien', 'spidermaan', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'D', 0, 0, 'true');
@@ -828,7 +842,7 @@ COMMIT;
 --DIVERS
 SELECT * FROM shyeld.affichageAgents;
 SELECT * FROM shyeld.affichageCombats;
-SELECT * FROM shyeld.affichageReperages;*/
+SELECT * FROM shyeld.affichageReperages;
 
 
 
