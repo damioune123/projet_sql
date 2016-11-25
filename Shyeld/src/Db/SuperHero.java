@@ -126,10 +126,19 @@ public class SuperHero {
 	}
 	
 	public String toString() {
-		return "Heros N°" + this.idSuperhero + ", nom : " + this.nomCivil + ", prenom : " + this.prenomCivil + ", nomSuperHero : "
-	+ this.nomSuperhero + ", adresse : " + this.adressePrivee + ", origine : " + this.origine + ", type super pouvoir : " + this.typeSuperPouvoir +
-	", Puissance super pouvoir : " + this.puissanceSuperPouvoir + ", CoordX : " + this.derniereCoordonneeX + ", Coord Y : " + this.derniereCoordonneeY +
-	"Date Apparition : " + this.dateDerniereApparition + ", Clan : " + this.clan + ", Nombre Victoires : " + this.nombreVictoires + ", Nombre Défaites : " + 
-	this.nombreDefaites + "est Vivant : " + this.estVivant;
+		return 	"\nHeros N°" + this.idSuperhero +
+				"\nNom : " + this.nomCivil +
+				"\nPrenom : " + this.prenomCivil +
+				"\nNomSuperHero : " + this.nomSuperhero +
+				"\nAdresse : " + this.adressePrivee +
+				"\nOrigine : " + this.origine +
+				"\nType super pouvoir : " + this.typeSuperPouvoir +
+				"\nPuissance super pouvoir : " + this.puissanceSuperPouvoir +
+				"\nCoordonnées : (" + this.derniereCoordonneeX + ", "+ this.derniereCoordonneeY + ")" + 
+				"\nDate Apparition : " + this.dateDerniereApparition +
+				"\nClan : " + this.clan +
+				"\nNombre Victoires : " + this.nombreVictoires +
+				"\nNombre Défaites : " + this.nombreDefaites +
+				"\nEst Vivant : " + this.estVivant;
 	}
 }

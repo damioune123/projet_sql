@@ -42,7 +42,8 @@ CREATE TABLE shyeld.agents(
 	identifiant varchar(255) NOT NULL CHECK (nom<> ''),
 	mdp_sha256 varchar(512) NOT NULL CHECK (mdp_sha256<> ''),
 	nbre_rapport INTEGER NOT NULL CHECK (nbre_rapport >=0) DEFAULT 0,
-	est_actif boolean NOT NULL
+	est_actif boolean NOT NULL,
+	unique(identifiant)
 );
 
 CREATE TABLE shyeld.combats(
@@ -111,6 +112,24 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+--- PARTIE 2.bis check connexion agent ---
+
+CREATE OR REPLACE FUNCTION shyeld.check_connexion(varchar(255), varchar(512)) RETURNS integer as $$
+DECLARE
+	_identifiant ALIAS FOR $1;
+	_mdp ALIAS FOR $2;
+BEGIN
+	IF NOT EXISTS (SELECT * FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.mdp_sha256 = _mdp AND a.est_actif = TRUE) THEN
+		RETURN -1; /* VALEUR SI FAUX */
+	END IF;
+
+	RETURN (SELECT a.id_agent FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.mdp_sha256 = _mdp AND a.est_actif = TRUE); /* VALEUR SI VRAI */
+
+	EXCEPTION
+		WHEN check_violation THEN RAISE EXCEPTION 'login echoue';
+END;
+$$ LANGUAGE plpgsql;
+
 --partie 3 information de pertes de visibilité
 
 DROP VIEW IF EXISTS shyeld.perte_visibilite;
@@ -124,6 +143,7 @@ WHERE (date_part('year', age(sh.date_derniere_apparition)) >= 1
 	AND sh.est_vivant = TRUE;
 
 -- PARTIE 4 DELETE d'un super-héros
+
 CREATE OR REPLACE FUNCTION shyeld.supprimerSuperHeros(INTEGER) RETURNS INTEGER as $$
 DECLARE
 	_superHeroId ALIAS FOR $1;

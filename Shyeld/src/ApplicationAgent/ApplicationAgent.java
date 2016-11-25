@@ -14,9 +14,26 @@ public class ApplicationAgent {
 	
 	public static java.util.Scanner scanner = new java.util.Scanner(System.in);
 	public static Db connexionDb = new Db();
-	private static int idAgent = 1;
+	private static int idAgent;
+	private static boolean estConnecte;
 	
 	public static void main(String[] args) {
+		
+		System.out.println("-----------------------------------------");
+		System.out.println("Bienvenue dans la fenêtre de connexion");
+		System.out.println("-----------------------------------------");
+		System.out.println("1. Se connecter");
+		System.out.println("2. Quitter l'application");
+		do {
+			int choixLogin = scanner.nextInt();
+			switch(choixLogin) {
+			case 1 :
+				login();
+				break;
+			case 2 :
+				System.exit(0);
+			}
+		} while(!estConnecte);
 		
 		do {
 			System.out.println("--------------------------------------");
@@ -45,6 +62,17 @@ public class ApplicationAgent {
 			}
 			System.out.println("Voulez vous continuer (O/N)");
 		} while(Util.lireCharOouN(scanner.next().charAt(0)));
+	}
+		
+	private static void login(){
+		System.out.println("Entrez votre identifiant : ");
+		String identifiant = scanner.next();
+		System.out.println("Entrez votre mot de passe : ");
+		String mdp = scanner.next();
+		idAgent = connexionDb.checkConnexion(identifiant, mdp);
+		if(idAgent >= 0) {
+			estConnecte = true;
+		} 
 	}
 	
 	private static void informationSuperHero(){
@@ -127,42 +155,33 @@ public class ApplicationAgent {
 		int coordX = scanner.nextInt();
 		System.out.println("Quelle était la coordonnée Y du combat : ");
 		int coordY = scanner.nextInt();
-		int agent = idAgent;
 		int nombreParticipants;
 		int idCombat = -1;
-		try {
-			idCombat = connexionDb.combatDejaExistant(date, coordX, coordY);
+		/* try {
+			idCombat = connexionDb.combatDejaExistant(date, coordX, coordY); => supprimer la totalite de ce qui y est rattache ? 
 		} catch (ParseException pe) {
 			pe.printStackTrace();
-		}
-		if(idCombat >= 0) {
-			System.out.println("Combien de participants supplémentaires avez vous vu ? ");
-			nombreParticipants = scanner.nextInt();
-		} else {
-			System.out.println("Combien y avait t'il de participants ? ");
-			nombreParticipants = scanner.nextInt();
-			System.out.println("Combien y avait t'il de gagnants ? ");
-			int nombreGagnants = scanner.nextInt();
-			System.out.println("Combien y avait t'il de perdants ? ");
-			int nombrePerdants = scanner.nextInt();
-			System.out.println("Combien de personnes neutres y avait t'il ? ");
-			int nombreNeutres = scanner.nextInt();
-			System.out.println("Quel clan est sortis vainqueur de ce combat ? ");
+		}*/
+		
+		System.out.println("Quel clan est sortis vainqueur de ce combat ? ");
 			char clan = scanner.next().charAt(0);
-			try {
-				idCombat = connexionDb.ajouterCombat(new Combat(date, coordX, coordY, agent, nombreParticipants,
-						nombreGagnants, nombrePerdants, nombreNeutres, clan));
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
+		try {
+			idCombat = connexionDb.ajouterCombat(new Combat(date, coordX, coordY, idAgent, 0, 0, 0, 0, clan));
+		} catch (ParseException e) {
+			e.printStackTrace();
 		}
 		if(idCombat < 0){
 			System.out.println("Erreur lors de l'ajout du combat");
 		} else {
 			System.out.println("Nous allons à présent passer à l'encodage des participations");
-			for(int i = 0; i < nombreParticipants; i++){
+			int i = 0;
+			char boucle;
+			do {
 				ajouterParticipation(idCombat, i);
-			}
+				i++;
+				System.out.println("Voulez vous ajouter une autre participation ? (O/N)");
+				boucle = scanner.next().charAt(0);
+			} while (Util.lireCharOouN(boucle));
 		}
 		
 	}
@@ -195,7 +214,12 @@ public class ApplicationAgent {
 		int coordY = scanner.nextInt();
 		System.out.println("A quelle date l'avez vous vu ? ");
 		String date = scanner.next();
-		int idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, coordX, coordY, date));
+		int idReperage = -1;
+		try {
+			idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, coordX, coordY, date));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
 		if(idReperage < 0) {
 			System.out.println("Erreur lors de l'ajout du repérage");
 		} else {
@@ -229,7 +253,6 @@ public class ApplicationAgent {
 		int idSuperHero = checkSiPresent(nomSuperHero);
 		System.out.println("Nous allons procédé à l'inhumation de ce superhero ...");
 		connexionDb.supprimerSuperHero(idSuperHero);
-		
 	}
 }
 

@@ -20,6 +20,7 @@ public class Db {
 	private PreparedStatement cDJ;
 	private PreparedStatement ajoutRep;
 	private PreparedStatement suppSH;
+	private PreparedStatement checkCo;
 	
 	
 	public Db() {
@@ -46,6 +47,7 @@ public class Db {
 			this.cDJ = this.connexionDb.prepareStatement("SELECT * FROM shyeld.check_si_combat(?,?,?);");
 			this.ajoutRep = this.connexionDb.prepareStatement("SELECT * FROM shyeld.creation_reperage(?,?,?,?,?);");
 			this.suppSH = connexionDb.prepareStatement("SELECT * FROM shyeld.supprimerSuperHeros(?);");
+			this.checkCo = connexionDb.prepareStatement("SELECT * FROM shyeld.check_connexion(?,?);");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -157,13 +159,13 @@ public class Db {
 		}
 	}
 	
-	public int ajouterReperage(Reperage reperage) {
+	public int ajouterReperage(Reperage reperage) throws ParseException {
 		try {
 			ajoutRep.setInt(1, reperage.getAgent());
 			ajoutRep.setInt(2, reperage.getSuperhero());
 			ajoutRep.setInt(3, reperage.getCoordX());
 			ajoutRep.setInt(4, reperage.getCoordY());
-			ajoutRep.setTimestamp(5, Timestamp.valueOf(reperage.getDate()));
+			ajoutRep.setDate(5, formaterDate(reperage.getDate()));
 			try(ResultSet rs = ajoutRep.executeQuery()) {
 				while(rs.next()) {
 					return Integer.valueOf(rs.getString(1));
@@ -178,7 +180,6 @@ public class Db {
 	
 	public int supprimerSuperHero(int idSuperHero) {
 		try {
-			PreparedStatement suppSH = connexionDb.prepareStatement("SELECT shyeld.supprimerSuperHeros(?);");
 			suppSH.setInt(1, idSuperHero);
 			try(ResultSet rs = suppSH.executeQuery()) {
 				while(rs.next()) {
@@ -197,5 +198,21 @@ public class Db {
 		Date date = formater.parse(dateString);
 		return new java.sql.Date(date.getTime());
 		
+	}
+	
+	public int checkConnexion(String identifiant, String mdp) {
+		try {
+			checkCo.setString(1, identifiant);
+			checkCo.setString(2, mdp);
+			try (ResultSet rs = checkCo.executeQuery()) {
+				while(rs.next()){
+					return Integer.valueOf(rs.getString(1));
+				}
+			}
+		} catch (SQLException se) {
+			se.printStackTrace();
+			return -1;
+		}
+		return -1;
 	}
 }
