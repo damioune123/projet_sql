@@ -42,7 +42,8 @@ CREATE TABLE shyeld.agents(
 	identifiant varchar(255) NOT NULL CHECK (nom<> ''),
 	mdp_sha256 varchar(512) NOT NULL CHECK (mdp_sha256<> ''),
 	nbre_rapport INTEGER NOT NULL CHECK (nbre_rapport >=0) DEFAULT 0,
-	est_actif boolean NOT NULL
+	est_actif boolean NOT NULL,
+	unique(identifiant)
 );
 
 CREATE TABLE shyeld.combats(
@@ -111,12 +112,30 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+--- PARTIE 2.bis check connexion agent ---
+
+CREATE OR REPLACE FUNCTION shyeld.check_connexion(varchar(255), varchar(512)) RETURNS integer as $$
+DECLARE
+	_identifiant ALIAS FOR $1;
+	_mdp ALIAS FOR $2;
+BEGIN
+	IF NOT EXISTS (SELECT * FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.mdp_sha256 = _mdp AND a.est_actif = TRUE) THEN
+		RETURN -1; /* VALEUR SI FAUX */
+	END IF;
+
+	RETURN (SELECT a.id_agent FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.mdp_sha256 = _mdp AND a.est_actif = TRUE); /* VALEUR SI VRAI */
+
+	EXCEPTION
+		WHEN check_violation THEN RAISE EXCEPTION 'login echoue';
+END;
+$$ LANGUAGE plpgsql;
+
 --partie 3 information de pertes de visibilité
 
 DROP VIEW IF EXISTS shyeld.perte_visibilite;
 
 CREATE VIEW shyeld.perte_visibilite AS
-SELECT sh.nom_superhero, sh.date_derniere_apparition, sh.derniere_coordonneeX, sh.derniere_coordonneeY
+SELECT DISTINCT sh.id_superhero, sh.nom_superhero, sh.date_derniere_apparition, sh.derniere_coordonneeX, sh.derniere_coordonneeY
 FROM shyeld.superheros sh
 WHERE (date_part('year', age(sh.date_derniere_apparition)) >= 1
 	OR date_part('month', age(sh.date_derniere_apparition)) >= 1
@@ -124,6 +143,7 @@ WHERE (date_part('year', age(sh.date_derniere_apparition)) >= 1
 	AND sh.est_vivant = TRUE;
 
 -- PARTIE 4 DELETE d'un super-héros
+
 CREATE OR REPLACE FUNCTION shyeld.supprimerSuperHeros(INTEGER) RETURNS INTEGER as $$
 DECLARE
 	_superHeroId ALIAS FOR $1;
@@ -218,7 +238,7 @@ FROM shyeld.agents a, shyeld.reperages r
 WHERE a.id_agent = r.agent 
 AND a.est_actif = TRUE 
 GROUP BY a.id_agent
-ORDER BY count(r.id_reperage) DESC;
+ORDER BY count(r.id_reperage) DESC; /* TO DO */
 
 --partie SHYELD 7.c - statistiques : historique des combats entre deux dates données, avec la liste des participants, des perdants et des gagnants
 
@@ -248,12 +268,11 @@ $$ LANGUAGE plpgsql;
 
 /********************************************************* FUNCTIONS AND VIEWS - APPLICATION AGENT**************************************************/
 --partie 1 : info super héro sur base du nom
-CREATE OR REPLACE FUNCTION shyeld.rechercherSuperHerosParNomSuperHero(varchar(255)) RETURNS SETOF
-shyeld.affichageInfoSuperHero as $$
+CREATE OR REPLACE FUNCTION shyeld.rechercherSuperHerosParNomSuperHero(varchar(255)) RETURNS SETOF shyeld.affichageInfoSuperHero as $$
 DECLARE
 	_nomSuperHero ALIAS FOR $1;
 	_superhero RECORD;
-	_sortie RECORD;
+	_sortie shyeld.affichageInfoSuperHero;
 BEGIN
 	FOR _superhero IN SELECT * FROM shyeld.superheros s  WHERE lower(s.nom_superhero) LIKE ('%'|| lower(_nomSuperHero) ||'%') AND s.est_vivant ='TRUE' LOOP
 		SELECT _superhero.id_superhero, _superhero.nom_civil, _superhero.prenom_civil, _superhero.nom_superhero,
@@ -269,7 +288,7 @@ $$ LANGUAGE plpgsql;
 -- partie 2 création d'un super-héro
 
 CREATE OR REPLACE FUNCTION shyeld.creation_superhero(varchar, varchar, varchar, varchar, varchar, varchar, integer, integer, integer, timestamp,
- shyeld.type_clan, integer, integer, boolean) RETURNS integer as $$
+ varchar , integer, integer, boolean) RETURNS integer as $$
 DECLARE
 	_nom ALIAS FOR $1;
 	_prenom ALIAS FOR $2;
@@ -286,13 +305,20 @@ DECLARE
 	_nombreDefaites ALIAS FOR $13;
 	_estVivant ALIAS FOR $14;
 	_id integer := 0;
+	_clanInsert shyeld.type_clan;
 BEGIN
+	IF _clan <> 'M' AND _clan <> 'D' THEN
+		RAISE 'type incorrect';
+	ELSE
+		_clanInsert := _clan;
+	END IF;
+
 	IF EXISTS (SELECT s.* FROM shyeld.superheros s WHERE s.nom_superhero = _nomSuperHero AND s.est_vivant = 'TRUE') THEN
 		RAISE foreign_key_violation;
 	END IF;
 
 	INSERT INTO shyeld.superheros VALUES (DEFAULT, _nom, _prenom, _nomSuperHero, _adressePrivee, _origine, _typeSuperPouvoir, _puissanceSuperPouvoir,
-		_coordX, _coordY, _date, _clan, _nombreVictoires, _nombreDefaites, _estVivant) RETURNING id_superhero INTO _id;
+		_coordX, _coordY, _date, _clanInsert, _nombreVictoires, _nombreDefaites, _estVivant) RETURNING id_superhero INTO _id;
 	RETURN _id;
 
 	EXCEPTION
@@ -333,7 +359,7 @@ $$ LANGUAGE plpgsql;
 --partie 4 rapport de combats agents
 --- PARTIE 4.a creation combat ---
 
-CREATE OR REPLACE FUNCTION shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer, shyeld.type_clan) RETURNS integer as $$
+CREATE OR REPLACE FUNCTION shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer, varchar) RETURNS integer as $$
 DECLARE
 	_date ALIAS FOR $1;
 	_coordX ALIAS FOR $2;
@@ -345,13 +371,20 @@ DECLARE
 	_nombreNeutres ALIAS FOR $8;
 	_clanVainqueur ALIAS FOR $9;
 	_id integer := 0;
+	_clanInsert shyeld.type_clan;
 BEGIN
+	IF _clanVainqueur <> 'M' AND _clanVainqueur <> 'D' THEN
+		RAISE 'type incorrect';
+	ELSE
+		_clanInsert := _clanVainqueur;
+	END IF;
+
 	IF NOT EXISTS (SELECT a.* FROM shyeld.agents a WHERE a.id_agent = _agent) THEN 
 		RAISE foreign_key_violation;
 	END IF;
 
 	INSERT INTO shyeld.combats VALUES (DEFAULT, _date, _coordX, _coordY, _agent, _nombreParticipants,
-	 _nombreGagnants, _nombrePerdants, _nombreNeutres, _clanVainqueur) RETURNING id_combat INTO _id;
+	 _nombreGagnants, _nombrePerdants, _nombreNeutres, _clanInsert) RETURNING id_combat INTO _id;
 	RETURN _id;
 
 	EXCEPTION
@@ -361,13 +394,20 @@ $$ LANGUAGE plpgsql;
 
 --- PARTIE 4.b creation participation ---
 
-CREATE OR REPLACE FUNCTION shyeld.creation_participation(integer, integer, shyeld.type_issue) RETURNS integer as $$
+CREATE OR REPLACE FUNCTION shyeld.creation_participation(integer, integer, varchar) RETURNS integer as $$
 DECLARE
 	_superhero ALIAS FOR $1;
 	_combat ALIAS FOR $2;
 	_issue ALIAS FOR $3;
 	_numLigne integer := 0;
+	_issueInsert shyeld.type_issue;
 BEGIN
+	IF _issue <> 'G' AND _issue <> 'P' AND _issue <> 'N' THEN
+		RAISE 'type incorrect';
+	ELSE
+		_issueInsert := _issue;
+	END IF;
+
 	IF NOT EXISTS (SELECT s.* FROM shyeld.superheros s WHERE s.id_superhero = _superhero AND s.est_vivant='TRUE') THEN
 		RAISE foreign_key_violation;
 	END IF;
@@ -378,12 +418,29 @@ BEGIN
 
 	_numLigne:=(SELECT count(p.numero_ligne) as "nombre_ligne" FROM shyeld.participations p WHERE p.combat = _combat);
 
-	INSERT INTO shyeld.participations VALUES (_superhero, _combat, _issue, _numLigne);
+	INSERT INTO shyeld.participations VALUES (_superhero, _combat, _issueInsert, _numLigne);
 
 	RETURN _numLigne;
 
 	EXCEPTION 
 		WHEN check_violation THEN RAISE EXCEPTION 'participation incorrecte';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION shyeld.check_si_combat(timestamp, integer, integer) RETURNS integer as $$
+DECLARE 
+	_date ALIAS FOR $1;
+	_coordX ALIAS FOR $2;
+	_coordY ALIAS FOR $3;
+BEGIN
+	IF EXISTS (SELECT c.* FROM shyeld.combats c WHERE c.date_combat = _date AND c.coord_combatX = _coordX AND c.coord_combatY = _coordY) THEN
+		RETURN (SELECT c.id_combat FROM shyeld.combats c WHERE c.date_combat = _date AND c.coord_combatX = _coordX AND c.coord_combatY = _coordY);
+	END IF;
+
+	RETURN -1;
+
+	EXCEPTION
+			WHEN check_violation THEN RAISE EXCEPTION 'erreur fonction';
 END;
 $$ LANGUAGE plpgsql;
 /***************************************** TRIGGERS ***********************************************************************/
@@ -799,21 +856,18 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,1,13,79,94,'2014/4/16');
 /***************************************** APPEL FONCTIONS ***********************************************************************/
 --appel fonctions/vue applcation shyeld
 SELECT shyeld.inscription_agent('Meur', 'Damien', 'dams', 'f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9');
-
 SELECT shyeld.supprimerAgent(2);
-SELECT * FROM shyeld.perte_visibilite;/*
-SELECT * FROM shyeld.zone_conflit; 
+SELECT * FROM shyeld.perte_visibilite;
+SELECT * FROM shyeld.zone_conflit;
 SELECT * FROM shyeld.historiqueReperagesAgent(1, now()::timestamp- interval '200000 min', now()::timestamp);
 
 SELECT * FROM shyeld.classementVictoires;
-
 SELECT * FROM shyeld.classementDefaites;
 SELECT * FROM shyeld.classementReperages; 
-
 SELECT * FROM shyeld.historiqueCombatsParticipations(now()::timestamp- interval '2000000 min', now()::timestamp);
 
---appel fonctions/vue applcation agent 
-SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(''); 
+--appel fonctions/vue applcation agent
+SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero('Bomb');
 SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(''); --> pour faire une recherche de tous les super-heros
 SELECT shyeld.creation_superhero('chris','sacre', 'ironman', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'M', 0, 0, 'true');
 SELECT shyeld.creation_superhero('meur','damien', 'spidermaan', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'D', 0, 0, 'true');
@@ -828,7 +882,7 @@ COMMIT;
 --DIVERS
 SELECT * FROM shyeld.affichageAgents;
 SELECT * FROM shyeld.affichageCombats;
-SELECT * FROM shyeld.affichageReperages;*/
+SELECT * FROM shyeld.affichageReperages;
 
-
+SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero('abe');
 
