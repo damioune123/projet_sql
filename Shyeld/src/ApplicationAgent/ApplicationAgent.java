@@ -237,6 +237,7 @@ public class ApplicationAgent {
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){
 				idSuperHero = superhero.getIdSuperhero();
+				break;
 			} 
 		}
 		if(idSuperHero < 0){

@@ -117,70 +117,13 @@ public class ApplicationShyeld {
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){
 				idSuperHero = superhero.getIdSuperhero();
+				break;
 			} 
-		}
-		if(idSuperHero < 0){
-			idSuperHero = creationSuperHero(null);
 		}
 		return idSuperHero;
 	}
 	
-	private static int creationSuperHero(String nomSuperHero) {
-		Scanner scanner = new Scanner(System.in);
-		System.out.println("Veuilliez entrer le nom civil du superh�ros : ");
-		String nom = scanner.next();
-		System.out.println("Veuilliez entrer le prenom civil du superh�ros");
-		String prenom = scanner.next();
-		if(nomSuperHero == null) {
-			System.out.println("Veuilliez entrer le surnom : ");
-			nomSuperHero = scanner.next();
-		}
-		System.out.println("Entrer l'adresse du superhero : ");
-		String adresse = scanner.next();
-		System.out.println("Entrer l'origine du superh�ros : ");
-		String origine = scanner.next();
-		System.out.println("Entrer le type de super pouvoir qu'il possede : ");
-		String typePouvoir = scanner.next();
-		System.out.println("Entrer la puissance du super pouvoir : ");
-		int puissancePouvoir = scanner.nextInt();
-		System.out.println("Entrer la coordonn�e X o� vous l'avez aper�u : ");
-		int coordX = scanner.nextInt();
-		System.out.println("Entrer � pr�sent la coordonn�e Y o� vous l'avez aper�u : ");
-		int coordY = scanner.nextInt();
-		System.out.println("A quelle date l'avez vous aper�u : ");
-		String date = scanner.next();
-		System.out.println("Quel est son clan ? (M/D)");
-		char clan = scanner.next().charAt(0);
-		System.out.println("Combien de victoires � t'il eu ? ");
-		int victoires = scanner.nextInt();
-		System.out.println("Combien de d�faites � t'il eu ?");
-		int defaites = scanner.nextInt();
-		boolean estVivant;
-		char vivantChar;
-		do {
-			System.out.println("Est t'il encore en vie ? (O/N)");
-			vivantChar = scanner.next().charAt(0);
-			estVivant = true;
-			if(vivantChar == 'O' || vivantChar == 'o') {
-				estVivant = true;
-			} else if(vivantChar == 'N' || vivantChar == 'n') {
-				estVivant = false;
-			}
-		} while (vivantChar != 'o' && vivantChar != 'O' && vivantChar != 'n' && vivantChar != 'N');
-		int idSuperHero = - 1;
-		try {
-			idSuperHero = accesBDDN.ajouterSuperHero(new SuperHero(nom, prenom, nomSuperHero, adresse, origine, typePouvoir,
-					puissancePouvoir, coordX, coordY, date, clan, victoires, defaites, estVivant));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-		if(idSuperHero < 0){
-			System.out.println("L'ajout n'a pas pu �tre effectu�");
-		} else {
-			System.out.println("Le SuperHero est ajout� sous l'id : " + idSuperHero);
-		}
-		return idSuperHero;
-	}
+	
 	
 	
 	private static void signalerDecesSH(){
