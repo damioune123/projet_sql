@@ -76,7 +76,7 @@ public class ApplicationShyeld {
 		String mdp_clair = scanner.next();
 		System.out.println("Vous avez choisi d'inscrire un nouvel agent");
 		System.out.println("Quel est le prénom de l'agent ?");
-		String mdpEncrypte = Util.encryptionBcrypt(mdp_clair);
+		String mdpEncrypte = Util.encryptionBcryptInscription(mdp_clair);
 		accesBDDN.inscriptionAgent(nom, prenom, identifiant, mdpEncrypte);
 		
 	}

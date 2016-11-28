@@ -2,6 +2,8 @@ package newHeroes;
 
 import java.util.Random;
 
+import org.mindrot.BCrypt;
+
 public class Util {
 	
 	public static Random numRandom = new Random();
@@ -87,7 +89,7 @@ public class Util {
 	public static int COORD_MAX = 100;
 	public static int NOMBRE_HEROS = 20;
 	public static int NOMBRE_RAPPORTS = 25;
-	public static String MOT_DE_PASSE = "f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9";//azerty en sha256
+	public static String MOT_DE_PASSE = encryptionBcrypt("azerty");
 	public static int[] PARTICIPATIONS = new int[Generation.NOMBRE_COMBATS];
 	
 	public static SuperHero createNewHero(){
@@ -108,6 +110,10 @@ public class Util {
 				NOM[unEntierAuHasardEntre(0, NOM.length - 1)], date, MOT_DE_PASSE, unEntierAuHasardEntre(0, NOMBRE_RAPPORTS) ,true);
 		compteurAgent++;
 		return agent;
+	}
+	public static String encryptionBcrypt(String mdpClair){
+		String hashed = BCrypt.hashpw(mdpClair, BCrypt.gensalt());
+		return hashed;
 	}
 	
 	public static Combat createNewCombat(char clanGagnant, int nombreHerosMarvelle, int nombreHerosDc){

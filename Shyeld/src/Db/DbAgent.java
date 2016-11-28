@@ -96,21 +96,20 @@ public class DbAgent extends Db{
 	}
 
 
-	public int checkConnexion(String identifiant, String mdp) {
-		String query = "SELECT * FROM shyeld.check_connexion(?,?);";
+	public String checkConnexion(String identifiant){
+		String query = "SELECT * FROM shyeld.check_connexion(?);";
 		try(PreparedStatement checkCo = this.connexionDb.prepareStatement(query);) {
 			checkCo.setString(1, identifiant);
-			checkCo.setString(2, mdp);
 			try (ResultSet rs = checkCo.executeQuery()) {
 				while(rs.next()){
-					return Integer.valueOf(rs.getString(1));
+					return rs.getString(1);
 				}
 			}
 		} catch (SQLException se) {
 			se.printStackTrace();
-			return -1;
+			return null;
 		}
-		return -1;
+		return null;
 	}
 
 }

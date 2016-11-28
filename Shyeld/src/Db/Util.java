@@ -1,11 +1,15 @@
 package Db;
 
 import java.text.ParseException;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.mindrot.BCrypt;
+
 
 public class Util {
+
 
 	public static boolean lireCharOouN(char carac) {
 		do {
@@ -18,10 +22,15 @@ public class Util {
 		return true; //Uniquement pour la compilation
 	}
 	
-	public static String encryptionBcrypt(String mdpClair){
-		//a completer
-		return mdpClair;
+	public static String encryptionBcryptInscription(String mdpClair){
+		String hashed = BCrypt.hashpw(mdpClair, BCrypt.gensalt());
+		return hashed;
 	}
+	
+	public static boolean verifPasswordBcrypt(String mdpClair, String hashed){
+		return BCrypt.checkpw(mdpClair, hashed);
+	}
+
 	
 	public static java.sql.Date formaterDate(String dateString) throws ParseException {
 		SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy");

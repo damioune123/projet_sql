@@ -40,7 +40,7 @@ CREATE TABLE shyeld.agents(
 	nom varchar(255) NOT NULL CHECK (nom<> ''),
 	date_mise_en_service TIMESTAMP NOT NULL CHECK(date_mise_en_service <= now()),
 	identifiant varchar(255) NOT NULL CHECK (nom<> ''),
-	mdp_sha256 varchar(512) NOT NULL CHECK (mdp_sha256<> ''),
+	mdp_bcrypt varchar(512) NOT NULL CHECK (mdp_bcrypt<> ''),
 	nbre_rapport INTEGER NOT NULL CHECK (nbre_rapport >=0) DEFAULT 0,
 	est_actif boolean NOT NULL,
 	unique(identifiant)
@@ -114,17 +114,16 @@ $$ LANGUAGE plpgsql;
 
 --- PARTIE 2.bis check connexion agent ---
 
-CREATE OR REPLACE FUNCTION shyeld.check_connexion(varchar(255), varchar(512)) RETURNS integer as $$
+CREATE OR REPLACE FUNCTION shyeld.check_connexion(varchar(255)) RETURNS VARCHAR(512) as $$
 DECLARE
 	_identifiant ALIAS FOR $1;
-	_mdp ALIAS FOR $2;
+	_mdp VARCHAR(512);
 BEGIN
-	IF NOT EXISTS (SELECT * FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.mdp_sha256 = _mdp AND a.est_actif = TRUE) THEN
-		RETURN -1; /* VALEUR SI FAUX */
+	IF NOT EXISTS (SELECT * FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.est_actif = TRUE) THEN
+		RETURN NULL; 
 	END IF;
-
-	RETURN (SELECT a.id_agent FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.mdp_sha256 = _mdp AND a.est_actif = TRUE); /* VALEUR SI VRAI */
-
+	SELECT a.mdp_bcrypt INTO _mdp FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.est_actif = TRUE ; 
+	RETURN _mdp;
 	EXCEPTION
 		WHEN check_violation THEN RAISE EXCEPTION 'login echoue';
 END;
@@ -632,16 +631,16 @@ INSERT INTO shyeld.superheros VALUES(DEFAULT,'ROUSSEL','Gabrielle','Alan','Pour 
 INSERT INTO shyeld.superheros VALUES(DEFAULT,'NICOLAS','L�anne','Scott','Pour le moment pas d idees 35 1000 Bruxelles','Entrainement','Enhanced synesthesia',2,71,47,'2015/2/9','M',0,0,true);
 INSERT INTO shyeld.superheros VALUES(DEFAULT,'DUMAS','Emy','Alex','Pour le moment pas d idees 35 1000 Bruxelles','Parasite','Temperature manipulation',4,28,4,'2007/3/4','D',0,0,true);
 
-INSERT INTO shyeld.agents VALUES(DEFAULT,'�mile','LAURENT','2002/11/20','LAURENT1','azerty',8,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'Louis','BESSON','2014/1/20','BESSON2','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',10,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'Dylan','GILLET','2007/8/7','GILLET3','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',6,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'�milie','HERVE','2009/2/2','HERVE4','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',20,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'Emy','COLLIN','2007/10/8','COLLIN5','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',23,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'Noah','GERMAIN','2003/1/17','GERMAIN6','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',12,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'Chlo�','LECLERC','2004/2/20','LECLERC7','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',17,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'Lucas','BARRE','2007/6/10','BARRE8','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',19,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'�tienne','DUMONT','2014/2/18','DUMONT9','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',10,true);
-INSERT INTO shyeld.agents VALUES(DEFAULT,'Guillaume','BERNARD','2003/7/23','BERNARD10','f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9',14,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Alex','RENAUD','2002/12/22','RENAUD1','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',20,true); --azerty en bcrypt
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Benjamin','CHEVALIER','2012/4/23','CHEVALIER2','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',0,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Mathis','DUFOUR','2000/6/11','DUFOUR3','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',3,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Mathieu','BARTHELEMY','2005/6/9','BARTHELEMY4','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',10,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Logan','DUBOIS','2013/11/2','DUBOIS5','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',14,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Alice','GUICHARD','2000/2/4','GUICHARD6','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',16,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'M�lodie','DENIS','2012/5/10','DENIS7','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',10,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Delphine','LEGRAND','2002/3/4','LEGRAND8','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',17,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'Jacob','BARON','2013/10/13','BARON9','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',16,true);
+INSERT INTO shyeld.agents VALUES(DEFAULT,'L�a','ETIENNE','2003/10/24','ETIENNE10','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',11,true);
 
 BEGIN;
 INSERT INTO shyeld.combats VALUES(DEFAULT,'2009/7/12',7,21,4,15,3,1,11,'M');

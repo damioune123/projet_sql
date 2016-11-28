@@ -1,5 +1,6 @@
 package ApplicationAgent;
 
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 
@@ -65,15 +66,19 @@ public class ApplicationAgent {
 	}
 		
 	private static void login(){
-		System.out.println("Entrez votre identifiant : ");
-		String identifiant = scanner.next();
-		System.out.println("Entrez votre mot de passe : ");
-		String mdpClair = scanner.next();
-		String mdpEncrypte = Util.encryptionBcrypt(mdpClair);
-		idAgent = connexionDb.checkConnexion(identifiant, mdpEncrypte);
-		if(idAgent >= 0) {
-			estConnecte = true;
-		} 
+		while(true){
+			System.out.println("Entrez votre identifiant : ");
+			String identifiant = scanner.next();
+			System.out.println("Entrez votre mot de passe : ");
+			String mdpClair = scanner.next();
+			String mdpHashed = connexionDb.checkConnexion(identifiant);
+			if(mdpHashed != null && Util.verifPasswordBcrypt(mdpClair, mdpHashed)) {
+				estConnecte = true;
+				return;
+			}
+			System.out.println("Mauvais identifiants !");
+		}
+		
 	}
 	
 	private static void informationSuperHero(){
