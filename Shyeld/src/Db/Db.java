@@ -12,6 +12,7 @@ public class Db {
 
 	protected Connection connexionDb;
 	
+	public static String IPHOST_PORT ="localhost:5432";//a changer
 	public static String nomBDDN ="postgres"; //a changer
 	
 	protected Db(String userDb, String passwordDb) {
@@ -22,7 +23,7 @@ public class Db {
 				System.out.println("Driver PostgreSQL manquant !");
 				System.exit(1);
 			}	
-			String url="jdbc:postgresql://localhost:5432/"+nomBDDN+ "?user="+userDb+"&password="+passwordDb;
+			String url="jdbc:postgresql://"+IPHOST_PORT+"/"+nomBDDN+ "?user="+userDb+"&password="+passwordDb;
 			try {
 				this.connexionDb=DriverManager.getConnection(url);
 			} catch (SQLException e) {
@@ -67,34 +68,7 @@ public class Db {
 			return -1;
 		}
 	}
-	public int ajouterSuperHero(SuperHero superhero) throws ParseException {
-		String query ="SELECT * FROM shyeld.creation_superhero(?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-		try(PreparedStatement ajoutSH = this.connexionDb.prepareStatement(query);) {
-			ajoutSH.setString(1, superhero.getNomCivil());
-			ajoutSH.setString(2, superhero.getPrenomCivil());
-			ajoutSH.setString(3, superhero.getNomSuperhero());
-			ajoutSH.setString(4, superhero.getAdressePrivee());
-			ajoutSH.setString(5, superhero.getOrigine());
-			ajoutSH.setString(6, superhero.getTypeSuperPouvoir());
-			ajoutSH.setInt(7, superhero.getPuissanceSuperPouvoir());
-			ajoutSH.setInt(8, superhero.getDerniereCoordonneeX());
-			ajoutSH.setInt(9, superhero.getDerniereCoordonneeY());
-			ajoutSH.setDate(10, Util.formaterDate(superhero.getDateDerniereApparition()));
-			ajoutSH.setString(11, String.valueOf(superhero.getClan())); //A REVISER
-			ajoutSH.setInt(12, superhero.getNombreVictoires());
-			ajoutSH.setInt(13, superhero.getNombreDefaites());
-			ajoutSH.setBoolean(14, superhero.isEstVivant());
-			try(ResultSet rs = ajoutSH.executeQuery()) {
-				while(rs.next()) {
-					return Integer.valueOf(rs.getString(1));
-				}
-				return -1;
-			}
-		} catch (SQLException se) {
-			se.printStackTrace();
-			return -1;
-		}
-	}
+	
 
 	
 }
