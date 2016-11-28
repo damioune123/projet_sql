@@ -68,8 +68,9 @@ public class ApplicationAgent {
 		System.out.println("Entrez votre identifiant : ");
 		String identifiant = scanner.next();
 		System.out.println("Entrez votre mot de passe : ");
-		String mdp = scanner.next();
-		idAgent = connexionDb.checkConnexion(identifiant, mdp);
+		String mdpClair = scanner.next();
+		String mdpEncrypte = Util.encryptionBcrypt(mdpClair);
+		idAgent = connexionDb.checkConnexion(identifiant, mdpEncrypte);
 		if(idAgent >= 0) {
 			estConnecte = true;
 		} 
