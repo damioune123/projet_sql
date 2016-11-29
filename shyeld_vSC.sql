@@ -572,42 +572,48 @@ CREATE VIEW shyeld.affichageReperages AS
 SELECT r.*
 FROM shyeld.reperages r;
 /*********************************************************SIGNIN, ACCESS AND APP_USERS **************************************************/
---fonction pour la connexion d'un agent ==> a vérifier après cours de grolaux sur le sujet
+GRANT CONNECT
+ON DATABASE dmeur15
+TO dbcsacre15;
+
+GRANT USAGE
+ON SCHEMA shyeld
+TO dbcsacre15;
+
 /*
-CREATE OR REPLACE FUNCTION shyeld.connexionAgent(VARCHAR(255), VARCHAR(512))  RETURNS INTEGER AS $$
-DECLARE
-	_agent RECORD;
-	_identifiant ALIAS FOR $1;
-	_password ALIAS FOR $2;
+GRANT SELECT ON
+	shyeld.rechercherSuperHerosParNomSuperHero(VARCHAR(255)),
+	shyeld.creation_superhero(varchar, varchar, varchar, varchar, varchar, varchar, integer, integer, integer, timestamp,
+ shyeld.type_clan, integer, integer, boolean),
+	shyeld.creation_reperage(integer, integer, integer, integer, timestamp),
+	shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer, shyeld.type_clan),
+	shyeld.creation_participation(integer, integer, shyeld.type_issue),
+	shyeld.supprimerSuperHeros(INTEGER),
+	shyeld.rechercherSuperHerosParNomSuperHero(varchar(255))
+TO dbcsacre15; */
 
-BEGIN
-	IF NOT EXISTS (SELECT * FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.mdp_sha256 = _password) THEN RAISE 'Mauvais identifiants';
-	END IF;
-	DROP USER IF EXISTS AGENT_USER;
-	CREATE USER AGENT_USER;
+GRANT INSERT ON
+	shyeld.reperages,
+	shyeld.combats,
+	shyeld.participations
+TO dbcsacre15;
 
-	GRANT CONNECT
-	ON DATABASE postgres --à changer en fonction du nom de la db
-	TO AGENT_USER;
+GRANT UPDATE ON
+	shyeld.superheros
+TO dbcsacre15;
 
-	GRANT USAGE
-	ON SCHEMA shyeld
-	TO AGENT_USER;
-
-	GRANT EXECUTE
-	ON FUNCTION 
-		shyeld.rechercherSuperHerosParNomSuperHero(varchar(255)),
-		shyeld.creation_superhero(varchar, varchar, varchar, varchar, varchar, varchar, integer, integer, integer, timestamp,shyeld.type_clan, integer, integer, boolean),
-		shyeld.creation_reperage(integer, integer, integer, integer, timestamp),
-		shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer, shyeld.type_clan),
-		shyeld.creation_participation(integer, integer, shyeld.type_issue),
-		shyeld.supprimerSuperHeros(INTEGER)
-	TO AGENT_USER;
-	RETURN 0;
-END;
-$$  LANGUAGE plpgsql; 
-*/
-
+GRANT EXECUTE ON FUNCTION
+	shyeld.rechercherSuperHerosParNomSuperHero(VARCHAR(255)),
+	shyeld.creation_superhero(varchar, varchar, varchar, varchar, varchar, varchar, integer, integer, integer, timestamp,
+ shyeld.type_clan, integer, integer, boolean),
+	shyeld.creation_reperage(integer, integer, integer, integer, timestamp),
+	shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer, shyeld.type_clan),
+	shyeld.creation_participation(integer, integer, shyeld.type_issue),
+	shyeld.supprimerSuperHeros(INTEGER),
+	shyeld.rechercherSuperHerosParNomSuperHero(varchar(255)),
+	shyeld.verificationAuthenticiteCombat(),
+	shyeld.miseAJourDateCoordonneeReperage()
+TO dbcsacre15;
 
 /************************************** INSERT INTO (META DONNEES) **************************************************************/
 INSERT INTO shyeld.superheros VALUES(DEFAULT,'NICOLAS','Justine','A-Bomb','Pour le moment pas d idees 35 1000 Bruxelles','Entrainement','Microwave emission',6,47,4,'2014/11/22','D',0,0,true);
