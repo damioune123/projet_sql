@@ -36,6 +36,5 @@ public class Util {
 		SimpleDateFormat formater = new SimpleDateFormat("dd-MM-yyyy");
 		Date date = formater.parse(dateString);
 		return new java.sql.Date(date.getTime());
-
 	}
 }

@@ -41,22 +41,21 @@ public class DbAgent extends Db{
 				}
 				connexionDb.commit();
 			} catch (SQLException se) {
-				se.printStackTrace();
+				System.out.println("Le combat n'a pas pu être ajouté");
 				id = -1;
 			}
 		} catch (SQLException se) {
 			try {
 				connexionDb.rollback();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println("Le retour en arrière n'a pas pû être effectué");
 			}
 		} finally {
 			try {
 				connexionDb.setAutoCommit(true);
 				return id;
 			} catch (SQLException e) {
-				e.printStackTrace();
+				System.out.println("La fermeture de la connexion n'a pas pû être effectué");
 			}
 		}
 		return id;
@@ -75,25 +74,7 @@ public class DbAgent extends Db{
 				return -1;
 			}
 		} catch (SQLException se) {
-			se.printStackTrace();
-			return -1;
-		}
-	}
-
-	public int combatDejaExistant(String date, int coordX, int coordY) throws ParseException {
-		String query = "SELECT * FROM shyeld.check_si_combat(?,?,?);";
-		try (PreparedStatement cDJ = this.connexionDb.prepareStatement(query);){
-			cDJ.setDate(1, Util.formaterDate(date));
-			cDJ.setInt(2, coordX);
-			cDJ.setInt(3, coordY);
-			try(ResultSet rs = cDJ.executeQuery()) {
-				while(rs.next()) {
-					return Integer.valueOf(rs.getString(1));
-				}
-				return -1;
-			}
-		} catch (SQLException se) {
-			se.printStackTrace();
+			System.out.println("La participation n'a pas pû être ajoutée");
 			return -1;
 		}
 	}
@@ -113,7 +94,7 @@ public class DbAgent extends Db{
 				return -1;
 			}
 		} catch(SQLException se) {
-			se.printStackTrace();
+			System.out.println("Le repérage n'a pas pû être ajouté");
 			return -1;
 		}
 	}
@@ -129,7 +110,7 @@ public class DbAgent extends Db{
 				}
 			}
 		} catch (SQLException se) {
-			se.printStackTrace();
+			System.out.println("La connexion n'a pû être effectuée");
 			return null;
 		}
 		return null;
@@ -144,6 +125,9 @@ public class DbAgent extends Db{
 				}
 				return -1;
 			}
+		} catch (SQLException se) {
+			System.out.println("Erreur lors de la récupération de l'agent");
+			return -1;
 		}
 	}
 	public int ajouterSuperHero(SuperHero superhero) throws ParseException {
@@ -170,7 +154,7 @@ public class DbAgent extends Db{
 				return -1;
 			}
 		} catch (SQLException se) {
-			se.printStackTrace();
+			System.out.println("Erreur lors de l'ajout du superhéros");
 			return -1;
 		}
 	}
