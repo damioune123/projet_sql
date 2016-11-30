@@ -212,11 +212,10 @@ BEGIN
 			WHERE a.id_agent = _agentId)
 			THEN RAISE foreign_key_violation;
 	END IF;
-	FOR _super_hero IN SELECT * FROM shyeld.superheros LOOP
-		FOR _reperage IN SELECT * FROM shyeld.reperages r WHERE r.date >= _dateInf AND r.date <= _dateSup LOOP
-			SELECT _super_hero.id_superhero, _super_hero.nom_superhero, _reperage.coord_x, _reperage.coord_y, _reperage.date INTO _sortie;
-			RETURN NEXT _sortie;
-		END LOOP;		
+	FOR _reperage IN SELECT DISTINCT * FROM shyeld.reperages r WHERE r.date >= _dateInf AND r.date <= _dateSup AND r.agent = _agentID LOOP
+		SELECT * FROM shyeld.superheros s WHERE _reperage.superhero =  s.id_superhero INTO _super_hero;
+		SELECT _super_hero.id_superhero, _super_hero.nom_superhero, _reperage.coord_x, _reperage.coord_y, _reperage.date INTO _sortie;
+		RETURN NEXT _sortie;		
 	END LOOP;
 	RETURN;
 END;
@@ -232,7 +231,7 @@ DROP VIEW IF EXISTS shyeld.classementVictoires;
 CREATE VIEW shyeld.classementVictoires AS
 SELECT s.nombre_victoires, s.id_superhero, s.nom_superhero
 FROM shyeld.superheros s
-WHERE s.est_vivant
+WHERE s.est_vivant='TRUE'
 ORDER BY s.nombre_victoires DESC;
 
 DROP VIEW IF EXISTS shyeld.classementDefaites;
@@ -240,7 +239,7 @@ DROP VIEW IF EXISTS shyeld.classementDefaites;
 CREATE VIEW shyeld.classementDefaites AS
 SELECT s.nombre_defaites, s.id_superhero, s.nom_superhero
 FROM shyeld.superheros s
-WHERE s.est_vivant
+WHERE s.est_vivant='TRUE'
 ORDER BY s.nombre_defaites DESC;
 
 /* ---> b) <--- */
@@ -870,3 +869,4 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,1,13,79,94,'2014/4/16');
 /***************************************** APPEL FONCTIONS ***********************************************************************/
 
 SELECT *  FROM shyeld.combats;
+SELECT * FROM shyeld.historiqueReperagesAgent(1, '1950-12-12', '2050-12-12');
