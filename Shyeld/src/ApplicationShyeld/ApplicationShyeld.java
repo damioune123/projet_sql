@@ -112,7 +112,6 @@ public class ApplicationShyeld {
 		int idSuperHero = -1;
 		for(SuperHero superhero : superheros) {
 			System.out.println("S'agit t'il de celui-ci ? (O/N)");
-			System.out.println(superhero.toString());
 			Scanner scanner = new Scanner(System.in);
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){

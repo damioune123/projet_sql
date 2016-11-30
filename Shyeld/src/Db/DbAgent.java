@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class DbAgent extends Db{
 	private static String userDb="postgres";
-	private static String passwordDb="Tiffy0603";
+	private static String passwordDb="azerty";
 	public DbAgent(){
 		super(userDb, passwordDb);
 	}
