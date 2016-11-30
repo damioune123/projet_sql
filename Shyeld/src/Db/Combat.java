@@ -10,10 +10,9 @@ public class Combat {
 	private int nombreGagnants;
 	private int nombrePerdants;
 	private int nombreNeutres;
-	private char clan;
 	
 	public Combat(int idCombat, String dateCombat, int coordCombatX, int coordCombatY, int agent,
-			int nombreParticipants, int nombreGagnants, int nombrePerdants, int nombreNeutres, char clan) {
+			int nombreParticipants, int nombreGagnants, int nombrePerdants, int nombreNeutres) {
 		super();
 		this.idCombat = idCombat;
 		this.dateCombat = dateCombat;
@@ -24,12 +23,11 @@ public class Combat {
 		this.nombreGagnants = nombreGagnants;
 		this.nombrePerdants = nombrePerdants;
 		this.nombreNeutres = nombreNeutres;
-		this.clan = clan;
 	}
 	
 
 	public Combat(String dateCombat, int coordCombatX, int coordCombatY, int agent, int nombreParticipants,
-			int nombreGagnants, int nombrePerdants, int nombreNeutres, char clan) {
+			int nombreGagnants, int nombrePerdants, int nombreNeutres) {
 		super();
 		this.dateCombat = dateCombat;
 		this.coordCombatX = coordCombatX;
@@ -39,7 +37,6 @@ public class Combat {
 		this.nombreGagnants = nombreGagnants;
 		this.nombrePerdants = nombrePerdants;
 		this.nombreNeutres = nombreNeutres;
-		this.clan = clan;
 	}
 
 
@@ -79,14 +76,10 @@ public class Combat {
 	public int getNombreNeutres() {
 		return nombreNeutres;
 	}
-
-	public char getClan() {
-		return clan;
-	}
 	
 	public String insertIntoCombats(){
 		return "INSERT INTO shyeld.combats VALUES(DEFAULT,'" + this.dateCombat + "'," + this.coordCombatX + ","
 	+ this.coordCombatY + "," + this.agent + "," + this.nombreParticipants + "," + this.nombreGagnants + ","
-				+ this.nombrePerdants + "," +this.nombreNeutres + ",'" + this.clan + "');\n";
+				+ this.nombrePerdants + "," +this.nombreNeutres + "');\n";
 	}
 }

@@ -4,39 +4,62 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 
 
 public class DbAgent extends Db{
 	private static String userDb="postgres";
-	private static String passwordDb="azerty";
+	private static String passwordDb="Tiffy0603";
 	public DbAgent(){
 		super(userDb, passwordDb);
 	}
 	
 	
-	public int ajouterCombat(Combat combat) throws ParseException {
-		String query = "SELECT * FROM shyeld.creation_combat(?,?,?,?,?,?,?,?,?);";
-		try (PreparedStatement ajoutComb = this.connexionDb.prepareStatement(query);){
-			ajoutComb.setDate(1, Util.formaterDate(combat.getDateCombat()));
-			System.out.println(Util.formaterDate(combat.getDateCombat()));
-			ajoutComb.setInt(2, combat.getCoordCombatX());
-			ajoutComb.setInt(3, combat.getCoordCombatY());
-			ajoutComb.setInt(4, combat.getAgent());
-			ajoutComb.setInt(5, combat.getNombreParticipants());
-			ajoutComb.setInt(6, combat.getNombreGagnants());
-			ajoutComb.setInt(7, combat.getNombrePerdants());
-			ajoutComb.setInt(8, combat.getNombreNeutres());
-			ajoutComb.setString(9, String.valueOf(combat.getClan()));
-			try(ResultSet rs = ajoutComb.executeQuery()) {
-				while(rs.next()) {
-					return Integer.valueOf(rs.getString(1));
+	public int ajouterCombat(Combat combat, ArrayList<Participation> participations) throws ParseException {
+		int id = -1;
+		try {
+			connexionDb.setAutoCommit(false);
+			String query = "SELECT * FROM shyeld.creation_combat(?,?,?,?,?,?,?,?);";
+			System.out.println(combat.getAgent());
+			try (PreparedStatement ajoutComb = this.connexionDb.prepareStatement(query);){
+				ajoutComb.setDate(1, Util.formaterDate(combat.getDateCombat()));
+				ajoutComb.setInt(2, combat.getCoordCombatX());
+				ajoutComb.setInt(3, combat.getCoordCombatY());
+				ajoutComb.setInt(4, combat.getAgent());
+				ajoutComb.setInt(5, combat.getNombreParticipants());
+				ajoutComb.setInt(6, combat.getNombreGagnants());
+				ajoutComb.setInt(7, combat.getNombrePerdants());
+				ajoutComb.setInt(8, combat.getNombreNeutres());
+				try(ResultSet rs = ajoutComb.executeQuery()) {
+					while(rs.next()) {
+						id = Integer.valueOf(rs.getString(1));
+					}
+					for(Participation participation : participations){
+						participation.setCombat(id);
+						ajouterParticipation(participation);
+					}
 				}
-				return -1;
+				connexionDb.commit();
+			} catch (SQLException se) {
+				se.printStackTrace();
+				id = -1;
 			}
 		} catch (SQLException se) {
-			se.printStackTrace();
-			return -1;
+			try {
+				connexionDb.rollback();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} finally {
+			try {
+				connexionDb.setAutoCommit(true);
+				return id;
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
+		return id;
 	}
 
 	public int ajouterParticipation(Participation participation) {
@@ -110,6 +133,18 @@ public class DbAgent extends Db{
 			return null;
 		}
 		return null;
+	}
+	public int getAgent(String identifiant) throws SQLException {
+		String query = "SELECT * FROM shyeld.get_agent(?);";
+		try(PreparedStatement getAg = this.connexionDb.prepareStatement(query);) {
+			getAg.setString(1, identifiant);
+			try(ResultSet rs = getAg.executeQuery()) {
+				while(rs.next()) {
+					return Integer.valueOf(rs.getString(1));
+				}
+				return -1;
+			}
+		}
 	}
 	public int ajouterSuperHero(SuperHero superhero) throws ParseException {
 		String query ="SELECT * FROM shyeld.creation_superhero(?,?,?,?,?,?,?,?,?,?,?,?,?,?);";

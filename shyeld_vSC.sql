@@ -5,7 +5,7 @@ CREATE TYPE shyeld.type_clan AS ENUM('M','D');
 CREATE TYPE shyeld.type_issue AS ENUM('G','P','N');
 CREATE TYPE shyeld.listeReperagesAgent AS (id_superhero INTEGER, nom_superhero varchar(255), coord_x  INTEGER, coord_y  INTEGER, date timestamp);
 CREATE TYPE shyeld.listeCombatsParticipations AS (id_combat INTEGER, date_combat TIMESTAMP, coord_combatX INTEGER, coord_combatY INTEGER, nombre_participants INTEGER, 
-							nombre_gagnants INTEGER, nombre_neutres INTEGER , clan_vainqueur shyeld.type_clan, id_superhero INTEGER, nom_superhero varchar(255), issue
+							nombre_gagnants INTEGER, nombre_neutres INTEGER , id_superhero INTEGER, nom_superhero varchar(255), issue
 							shyeld.type_issue);
 							
 CREATE TYPE shyeld.affichageInfoSuperHero AS (id_superhero INTEGER, nom_civil varchar(255), prenom_civil varchar(255), nom_superhero varchar(255),
@@ -55,8 +55,7 @@ CREATE TABLE shyeld.combats(
 	nombre_participants integer NOT NULL CHECK (nombre_participants >= 0 AND nombre_participants >= (nombre_perdants + nombre_gagnants)),
 	nombre_gagnants integer NOT NULL CHECK (nombre_gagnants >= 0 ),
 	nombre_perdants integer NOT NULL CHECK (nombre_perdants >= 0),
-	nombre_neutres integer NOT NULL CHECK (nombre_neutres >= 0),
-	clan_vainqueur shyeld.type_clan NOT NULL
+	nombre_neutres integer NOT NULL CHECK (nombre_neutres >= 0)
 );
 
 CREATE TABLE shyeld.participations(
@@ -126,6 +125,21 @@ BEGIN
 	RETURN _mdp;
 	EXCEPTION
 		WHEN check_violation THEN RAISE EXCEPTION 'login echoue';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION shyeld.get_agent(varchar(255)) RETURNS integer as $$
+DECLARE
+	_identifiant ALIAS FOR $1;
+	_id integer := 0;
+BEGIN
+	IF NOT EXISTS (SELECT * FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.est_actif = TRUE) THEN
+		RETURN NULL; 
+	END IF;
+	SELECT a.id_agent INTO _id FROM shyeld.agents a WHERE a.identifiant = _identifiant AND a.est_actif = TRUE ; 
+		RETURN _id;
+	EXCEPTION
+		WHEN check_violation THEN RAISE EXCEPTION 'get echoue';
 END;
 $$ LANGUAGE plpgsql;
 
@@ -255,7 +269,7 @@ BEGIN
 		FOR _participation IN SELECT * FROM shyeld.participations LOOP
 			FOR _superhero IN SELECT * FROM shyeld.superheros sh WHERE sh.id_superhero = _participation.superhero LOOP
 				SELECT _combat.id_combat, _combat.date_combat, _combat.coord_combatX, _combat.coord_combatY , _combat.nombre_participants , _combat.nombre_perdants ,
-					_combat.nombre_neutres , _combat.clan_vainqueur, _participation.superhero, _superhero.nom_superhero, _participation.issue INTO _sortie;
+					_combat.nombre_neutres , _participation.superhero, _superhero.nom_superhero, _participation.issue INTO _sortie;
 				RETURN NEXT _sortie;
 			END LOOP;
 		END LOOP;		
@@ -358,7 +372,7 @@ $$ LANGUAGE plpgsql;
 --partie 4 rapport de combats agents
 --- PARTIE 4.a creation combat ---
 
-CREATE OR REPLACE FUNCTION shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer, varchar) RETURNS integer as $$
+CREATE OR REPLACE FUNCTION shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer) RETURNS integer as $$
 DECLARE
 	_date ALIAS FOR $1;
 	_coordX ALIAS FOR $2;
@@ -368,22 +382,15 @@ DECLARE
 	_nombreGagnants ALIAS FOR $6;
 	_nombrePerdants ALIAS FOR $7;
 	_nombreNeutres ALIAS FOR $8;
-	_clanVainqueur ALIAS FOR $9;
 	_id integer := 0;
-	_clanInsert shyeld.type_clan;
 BEGIN
-	IF _clanVainqueur <> 'M' AND _clanVainqueur <> 'D' THEN
-		RAISE 'type incorrect';
-	ELSE
-		_clanInsert := _clanVainqueur;
-	END IF;
 
-	IF NOT EXISTS (SELECT a.* FROM shyeld.agents a WHERE a.id_agent = _agent) THEN 
+	IF NOT EXISTS (SELECT a.* FROM shyeld.agents a WHERE a.id_agent = _agent AND a.est_actif = TRUE) THEN 
 		RAISE foreign_key_violation;
 	END IF;
 
 	INSERT INTO shyeld.combats VALUES (DEFAULT, _date, _coordX, _coordY, _agent, _nombreParticipants,
-	 _nombreGagnants, _nombrePerdants, _nombreNeutres, _clanInsert) RETURNING id_combat INTO _id;
+	 _nombreGagnants, _nombrePerdants, _nombreNeutres) RETURNING id_combat INTO _id;
 	RETURN _id;
 
 	EXCEPTION
@@ -513,26 +520,29 @@ CREATE OR REPLACE FUNCTION shyeld.verificationAuthenticiteCombat()  RETURNS TRIG
 DECLARE
 	_participation RECORD;
 	_superhero RECORD;
-	_compteurGagnants INTEGER =0;
-	_compteurPerdants INTEGER =0;
+	_compteurMarvelle integer := 0;
+	_compteurDece integer := 0;
 
 BEGIN
 	IF NOT EXISTS (SELECT * FROM shyeld.participations p WHERE p.combat = NEW.id_combat) THEN RAISE foreign_key_violation;
 	END IF;
 	FOR _participation IN SELECT p.*  FROM shyeld.participations p WHERE p.combat = NEW.id_combat LOOP
-		FOR _superhero IN SELECT s.* FROM shyeld.superheros s WHERE s.id_superhero = _participation.superhero LOOP
-			IF (_participation.issue = 'G') THEN
-				IF(_superhero.clan != NEW.clan_vainqueur) THEN RAISE 'le superhero est vainqueur mais son clan ne correspond pas au clan vainqueur du combat';
-				END IF;
-				_compteurGagnants = _compteurGagnants +1;
-			ELSIF( _participation.issue = 'P' ) THEN
-				IF(_superhero.clan = NEW.clan_vainqueur)THEN RAISE 'le superhero est perdant mais son clan correspond au clan vainqueur du combat';
-				END IF;
-				_compteurPerdants = _compteurPerdants +1;
-			END IF;
-		END LOOP;
+		IF 'M' = (SELECT s.clan FROM shyeld.superheros s WHERE s.id_superhero = _participation.superhero) THEN
+			_compteurMarvelle := _compteurMarvelle + 1;
+		ELSE
+			_compteurDece := _compteurDece +1;
+		END IF;
+		UPDATE shyeld.combats SET nombre_participants = nombre_participants + 1 WHERE id_combat = _participation.combat;
+		IF 'G' = _participation.issue THEN
+			UPDATE shyeld.combats SET nombre_gagnants = nombre_gagnants + 1 WHERE id_combat = _participation.combat;
+		ELSIF 'P' = _participation.issue THEN
+			UPDATE shyeld.combats SET nombre_perdants = nombre_perdants + 1 WHERE id_combat = _participation.combat;
+		ELSE
+			UPDATE shyeld.combats SET nombre_neutres = nombre_neutres + 1 WHERE id_combat = _participation.combat;
+		END IF;
 	END LOOP;
-	IF( _compteurPerdants = 0 or _compteurGagnants =0) THEN RAISE 'Il faut au moins deux heros de factions adverses pour avoir un combat';
+	IF (_compteurDece <= 0 OR _compteurMarvelle <= 0) THEN
+		RAISE 'Deux clans adverses sont requis pour le même combat';
 	END IF;
 	RETURN NEW;
 		
@@ -643,7 +653,7 @@ INSERT INTO shyeld.agents VALUES(DEFAULT,'Jacob','BARON','2013/10/13','BARON9','
 INSERT INTO shyeld.agents VALUES(DEFAULT,'L�a','ETIENNE','2003/10/24','ETIENNE10','$2a$10$mb9Wc1amuo0SR0cmUfOlxe1DC/g9d8ML/pQrotjCX7T7FefrPD3vC',11,true);
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2009/7/12',7,21,4,15,3,1,11,'M');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2009/7/12',7,21,4,15,3,1,11);
 INSERT INTO shyeld.participations VALUES(6,1,'G',0);
 INSERT INTO shyeld.participations VALUES(19,1,'G',1);
 INSERT INTO shyeld.participations VALUES(2,1,'G',2);
@@ -662,7 +672,7 @@ INSERT INTO shyeld.participations VALUES(12,1,'N',14);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2003/1/19',18,71,1,15,9,1,5,'D');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2003/1/19',18,71,1,15,9,1,5);
 INSERT INTO shyeld.participations VALUES(1,2,'G',0);
 INSERT INTO shyeld.participations VALUES(18,2,'G',1);
 INSERT INTO shyeld.participations VALUES(5,2,'G',2);
@@ -681,7 +691,7 @@ INSERT INTO shyeld.participations VALUES(19,2,'N',14);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2006/4/24',58,79,5,14,1,10,3,'M');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2006/4/24',58,79,5,14,1,10,3);
 INSERT INTO shyeld.participations VALUES(6,3,'G',0);
 INSERT INTO shyeld.participations VALUES(15,3,'P',1);
 INSERT INTO shyeld.participations VALUES(7,3,'P',2);
@@ -699,7 +709,7 @@ INSERT INTO shyeld.participations VALUES(3,3,'N',13);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2015/11/19',16,77,4,11,2,3,6,'D');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2015/11/19',16,77,4,11,2,3,6);
 INSERT INTO shyeld.participations VALUES(7,4,'G',0);
 INSERT INTO shyeld.participations VALUES(15,4,'G',1);
 INSERT INTO shyeld.participations VALUES(17,4,'P',2);
@@ -714,7 +724,7 @@ INSERT INTO shyeld.participations VALUES(18,4,'N',10);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2001/6/21',24,76,2,10,3,4,3,'D');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2001/6/21',24,76,2,10,3,4,3);
 INSERT INTO shyeld.participations VALUES(14,5,'G',0);
 INSERT INTO shyeld.participations VALUES(12,5,'G',1);
 INSERT INTO shyeld.participations VALUES(10,5,'G',2);
@@ -728,7 +738,7 @@ INSERT INTO shyeld.participations VALUES(20,5,'N',9);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2009/12/24',13,8,3,20,7,2,11,'M');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2009/12/24',13,8,3,20,7,2,11);
 INSERT INTO shyeld.participations VALUES(8,6,'G',0);
 INSERT INTO shyeld.participations VALUES(17,6,'G',1);
 INSERT INTO shyeld.participations VALUES(3,6,'G',2);
@@ -752,7 +762,7 @@ INSERT INTO shyeld.participations VALUES(19,6,'N',19);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2000/12/26',94,27,5,15,2,1,12,'M');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2000/12/26',94,27,5,15,2,1,12);
 INSERT INTO shyeld.participations VALUES(3,7,'G',0);
 INSERT INTO shyeld.participations VALUES(6,7,'G',1);
 INSERT INTO shyeld.participations VALUES(20,7,'P',2);
@@ -771,7 +781,7 @@ INSERT INTO shyeld.participations VALUES(19,7,'N',14);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2002/10/26',19,22,2,16,3,1,12,'M');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2002/10/26',19,22,2,16,3,1,12);
 INSERT INTO shyeld.participations VALUES(19,8,'G',0);
 INSERT INTO shyeld.participations VALUES(8,8,'G',1);
 INSERT INTO shyeld.participations VALUES(9,8,'G',2);
@@ -791,7 +801,7 @@ INSERT INTO shyeld.participations VALUES(2,8,'N',15);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2014/2/4',37,5,1,18,7,3,8,'D');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2014/2/4',37,5,1,18,7,3,8);
 INSERT INTO shyeld.participations VALUES(18,9,'G',0);
 INSERT INTO shyeld.participations VALUES(5,9,'G',1);
 INSERT INTO shyeld.participations VALUES(13,9,'G',2);
@@ -813,7 +823,7 @@ INSERT INTO shyeld.participations VALUES(6,9,'N',17);
 COMMIT;
 
 BEGIN;
-INSERT INTO shyeld.combats VALUES(DEFAULT,'2003/3/22',75,10,9,19,2,1,16,'M');
+INSERT INTO shyeld.combats VALUES(DEFAULT,'2003/3/22',75,10,9,0,0,0,0);
 INSERT INTO shyeld.participations VALUES(17,10,'G',0);
 INSERT INTO shyeld.participations VALUES(2,10,'G',1);
 INSERT INTO shyeld.participations VALUES(12,10,'P',2);
@@ -853,35 +863,5 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,10,17,56,10,'2005/2/26');
 INSERT INTO shyeld.reperages VALUES(DEFAULT,1,13,79,94,'2014/4/16');
 
 /***************************************** APPEL FONCTIONS ***********************************************************************/
---appel fonctions/vue applcation shyeld
-SELECT shyeld.inscription_agent('Meur', 'Damien', 'dams', 'f2d81a260dea8a100dd517984e53c56a7523d96942a834b9cdc249bd4e8c7aa9');
-SELECT shyeld.supprimerAgent(2);
-SELECT * FROM shyeld.perte_visibilite;
-SELECT * FROM shyeld.zone_conflit;
-SELECT * FROM shyeld.historiqueReperagesAgent(1, now()::timestamp- interval '200000 min', now()::timestamp);
 
-SELECT * FROM shyeld.classementVictoires;
-SELECT * FROM shyeld.classementDefaites;
-SELECT * FROM shyeld.classementReperages; 
-SELECT * FROM shyeld.historiqueCombatsParticipations(now()::timestamp- interval '2000000 min', now()::timestamp);
-
---appel fonctions/vue applcation agent
-SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero('Bomb');
-SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(''); --> pour faire une recherche de tous les super-heros
-SELECT shyeld.creation_superhero('chris','sacre', 'ironman', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'M', 0, 0, 'true');
-SELECT shyeld.creation_superhero('meur','damien', 'spidermaan', 'pasdinspi 1200 bxl', 'bruxelles', 'feu', 1, 30, 40, now()::timestamp, 'D', 0, 0, 'true');
-SELECT shyeld.creation_reperage(1, 21, 30, 40 , now()::timestamp);
-BEGIN;
-SELECT shyeld.creation_combat(now()::timestamp, 30, 40, 11, 2, 1, 1, 0, 'M');
-SELECT shyeld.creation_participation(21,11, 'G');
-SELECT shyeld.creation_participation(22,11, 'P'); -- retour num ligne à 1 ? qu'est-ce que num ligne ?
-COMMIT;
-
---SELECT shyeld.connexionAgent('LAURENT1', 'azerty'); 
---DIVERS
-SELECT * FROM shyeld.affichageAgents;
-SELECT * FROM shyeld.affichageCombats;
-SELECT * FROM shyeld.affichageReperages;
-
-SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero('abe');
-
+SELECT *  FROM shyeld.combats;

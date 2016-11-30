@@ -36,6 +36,8 @@ public class ApplicationAgent {
 			}
 		} while(!estConnecte);
 		
+		System.out.println(idAgent);
+		
 		do {
 			System.out.println("--------------------------------------");
 			System.out.println(" Bienvenue dans l'Agent App");
@@ -73,6 +75,11 @@ public class ApplicationAgent {
 			String mdpClair = scanner.next();
 			String mdpHashed = connexionDb.checkConnexion(identifiant);
 			if(mdpHashed != null && Util.verifPasswordBcrypt(mdpClair, mdpHashed)) {
+				try {
+					idAgent = connexionDb.getAgent(identifiant);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 				estConnecte = true;
 				return;
 			}
@@ -153,6 +160,7 @@ public class ApplicationAgent {
 	}
 
 	private static void rapportCombat() {
+		ArrayList<Participation> participations = new ArrayList<Participation>();
 		System.out.println("---------------------------------------------------");
 		System.out.println("Bienvenue dans l'encodage d'un rapport de combat");
 		System.out.println("---------------------------------------------------");
@@ -162,38 +170,29 @@ public class ApplicationAgent {
 		int coordX = scanner.nextInt();
 		System.out.println("Quelle �tait la coordonn�e Y du combat : ");
 		int coordY = scanner.nextInt();
-		int nombreParticipants;
 		int idCombat = -1;
-		/* try {
-			idCombat = connexionDb.combatDejaExistant(date, coordX, coordY); => supprimer la totalite de ce qui y est rattache ? 
-		} catch (ParseException pe) {
-			pe.printStackTrace();
-		}*/
-		
-		System.out.println("Quel clan est sortis vainqueur de ce combat ? M-D");
-			char clan = Character.toUpperCase((scanner.next().charAt(0)));
 		try {
-			idCombat = connexionDb.ajouterCombat(new Combat(date, coordX, coordY, idAgent, 0, 0, 0, 0, clan));
+			System.out.println("Nous allons � pr�sent passer � l'encodage des participations");
+			int i = 0;
+			char boucle;
+			do {
+				Participation participation = ajouterParticipation(idCombat, i);
+				participations.add(participation); 
+				i++;
+				System.out.println("Voulez vous ajouter une autre participation ? (O/N)");
+				boucle = scanner.next().charAt(0);
+			} while (Util.lireCharOouN(boucle));
+			idCombat = connexionDb.ajouterCombat(new Combat(date, coordX, coordY, idAgent, 0, 0, 0, 0), participations);
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
 		if(idCombat < 0){
 			System.out.println("Erreur lors de l'ajout du combat");
-		} else {
-			System.out.println("Nous allons � pr�sent passer � l'encodage des participations");
-			int i = 0;
-			char boucle;
-			do {
-				ajouterParticipation(idCombat, i);
-				i++;
-				System.out.println("Voulez vous ajouter une autre participation ? (O/N)");
-				boucle = scanner.next().charAt(0);
-			} while (Util.lireCharOouN(boucle));
 		}
 		
 	}
 	
-	private static void ajouterParticipation(int idCombat, int numeroLigne) {
+	private static Participation ajouterParticipation(int idCombat, int numeroLigne) {
 		System.out.println("------------------------------------------------");
 		System.out.println("Bienvenue dans l'encodage d'une participation");
 		System.out.println("-------------------------------------------------");
@@ -202,10 +201,7 @@ public class ApplicationAgent {
 		int idSuperHero = checkSiPresent(nomSuperHero);
 		System.out.println("Comment s'est termine le combat pour cette personne (G/P/N) ? ");
 		char issue = scanner.next().charAt(0); //A AMELIORER
-		int idParticipation = connexionDb.ajouterParticipation(new Participation(idSuperHero, idCombat, issue, numeroLigne));
-		if(idParticipation < 0) {
-			System.out.println("Erreur lors de l'ajout de la participation");
-		}
+		return new Participation(idSuperHero, idCombat, issue, numeroLigne);
 	}
 	
 	private static void reperage(){

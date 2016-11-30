@@ -21,6 +21,10 @@ public class Participation {
 		return superhero;
 	}
 
+	public void setCombat(int combat) {
+		this.combat = combat;
+	}
+
 	public int getCombat() {
 		return combat;
 	}
