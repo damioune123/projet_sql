@@ -1,6 +1,7 @@
 package ApplicationShyeld;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import Db.DbShyeld;
 import Db.SuperHero;
@@ -85,7 +86,20 @@ public class ApplicationShyeld {
 		accesBDDN.affichageAllAgents();
 		System.out.println("Rentrez l'id de l'agent :");
 		Scanner scanner = new Scanner(System.in);
-		int id_agent = scanner.nextInt();
+		boolean ok = false;
+		int id_agent= -1;
+		while (!ok){
+			try{
+				id_agent = scanner.nextInt();
+			}
+			
+			catch(InputMismatchException e){
+				System.out.println("Veuillez rentrer un nombre correspondat à un agent");
+				
+			}
+			ok = true;
+		}
+		
 		accesBDDN.suppressionAgent(id_agent);
 		
 		

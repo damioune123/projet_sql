@@ -12,8 +12,8 @@ public class Db {
 
 	protected Connection connexionDb;
 	
-	public static String IPHOST_PORT ="localhost:5432";//a changer
-	public static String nomBDDN ="postgres"; //a changer
+	public static String IPHOST_PORT ="172.24.2.6";//a changer
+	public static String nomBDDN ="dbdmeur15"; //a changer
 	
 	protected Db(String userDb, String passwordDb) {
 		if(connexionDb == null) {

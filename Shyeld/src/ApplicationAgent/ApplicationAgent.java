@@ -104,7 +104,6 @@ public class ApplicationAgent {
 	private static void informationSuperHero(){
 		System.out.println("Veuilliez entrer le nom de votre superhero : ");
 		String nom = scanner.next();
-		System.out.println("yoyo "+nom);
 		ArrayList<SuperHero> listeSuperHero = connexionDb.informationSuperHero(nom);
 		if(!listeSuperHero.isEmpty()) {
 			for(SuperHero superHero: listeSuperHero) {
@@ -133,7 +132,7 @@ public class ApplicationAgent {
 		String typePouvoir = scanner.next();
 		System.out.println("Entrer la puissance du super pouvoir : ");
 		int puissancePouvoir = scanner.nextInt();
-		System.out.println("Entrer la coordonnée X où vous l'avez aperçu : ");
+		System.out.println("Entrer la coordonnée X 1l'avez aperçu : ");
 		int coordX = scanner.nextInt();
 		System.out.println("Entrer à présent la coordonnée Y où vous l'avez aperçu : ");
 		int coordY = scanner.nextInt();
@@ -215,7 +214,7 @@ public class ApplicationAgent {
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
 		System.out.println("Comment s'est termine le combat pour cette personne (G/P/N) ? ");
-		char issue = scanner.next().charAt(0); //A AMELIORER
+		char issue = scanner.next().charAt(0); 
 		return new Participation(idSuperHero, idCombat, issue, numeroLigne);
 	}
 	

@@ -432,22 +432,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION shyeld.check_si_combat(timestamp, integer, integer) RETURNS integer as $$
-DECLARE 
-	_date ALIAS FOR $1;
-	_coordX ALIAS FOR $2;
-	_coordY ALIAS FOR $3;
-BEGIN
-	IF EXISTS (SELECT c.* FROM shyeld.combats c WHERE c.date_combat = _date AND c.coord_combatX = _coordX AND c.coord_combatY = _coordY) THEN
-		RETURN (SELECT c.id_combat FROM shyeld.combats c WHERE c.date_combat = _date AND c.coord_combatX = _coordX AND c.coord_combatY = _coordY);
-	END IF;
-
-	RETURN -1;
-
-	EXCEPTION
-			WHEN check_violation THEN RAISE EXCEPTION 'erreur fonction';
-END;
-$$ LANGUAGE plpgsql;
 /***************************************** TRIGGERS ***********************************************************************/
 --  MAJ CHAMP nombre_victoires /nombres_defaites de la table shyeld.superheros
 CREATE OR REPLACE FUNCTION shyeld.miseAJourNombreVictoiresDefaites()  RETURNS TRIGGER AS $$
@@ -582,7 +566,6 @@ SELECT r.*
 FROM shyeld.reperages r;
 /*********************************************************SIGNIN, ACCESS AND APP_USERS **************************************************/
 
-/*
 GRANT CONNECT
 ON DATABASE dbdmeur15
 TO csacre15;
@@ -592,11 +575,18 @@ ON SCHEMA shyeld
 TO csacre15;
 
 GRANT SELECT ON
+shyeld.combats,
+shyeld.participations,
 shyeld.reperages,
+shyeld.superheros,
+shyeld.agents
+TO csacre15;
+
+GRANT TRIGGER ON
 shyeld.combats,
 shyeld.participations,
 shyeld.superheros,
-shyeld.agents
+shyeld.reperages
 TO csacre15;
 
 GRANT INSERT ON
@@ -607,21 +597,25 @@ shyeld.superheros
 TO csacre15;
 
 GRANT UPDATE ON
-shyeld.superheros
+shyeld.superheros,
+shyeld.combats
 TO csacre15;
 
 GRANT EXECUTE ON FUNCTION
 shyeld.rechercherSuperHerosParNomSuperHero(VARCHAR),
 shyeld.creation_superhero(varchar, varchar, varchar, varchar, varchar, varchar, integer, integer, integer, timestamp,varchar , integer, integer, boolean),
 shyeld.creation_reperage(integer, integer, integer, integer, timestamp),
-shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer, varchar),
+shyeld.creation_combat(timestamp, integer, integer, integer, integer, integer, integer, integer),
 shyeld.creation_participation(integer, integer, varchar),
 shyeld.supprimerSuperHeros(INTEGER),
 shyeld.rechercherSuperHerosParNomSuperHero(varchar),
 shyeld.verificationAuthenticiteCombat(),
-shyeld.miseAJourDateCoordonneeReperage()
+shyeld.miseAJourDateCoordonneeReperage(),
+shyeld.reperageCombat(),
+shyeld.miseAJourNombreVictoiresDefaites()
 TO csacre15;
-*/
+
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA shyeld TO csacre15;
 
 /************************************** INSERT INTO (META DONNEES) **************************************************************/
 INSERT INTO shyeld.superheros VALUES(DEFAULT,'NICOLAS','Justine','A-Bomb','Pour le moment pas d idees 35 1000 Bruxelles','Entrainement','Microwave emission',6,47,4,'2014/11/22','D',0,0,true);
@@ -869,4 +863,3 @@ INSERT INTO shyeld.reperages VALUES(DEFAULT,1,13,79,94,'2014/4/16');
 /***************************************** APPEL FONCTIONS ***********************************************************************/
 
 SELECT *  FROM shyeld.combats;
-SELECT * FROM shyeld.historiqueReperagesAgent(1, '1950-12-12', '2050-12-12');

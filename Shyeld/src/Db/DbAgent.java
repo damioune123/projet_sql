@@ -8,10 +8,28 @@ import java.util.ArrayList;
 
 
 public class DbAgent extends Db{
-	private static String userDb="postgres";
-	private static String passwordDb="azerty";
+	
+	private PreparedStatement ajoutComb;
+	private PreparedStatement ajoutPa;
+	private PreparedStatement ajoutRep;
+	private PreparedStatement checkCo;
+	private PreparedStatement getAg;
+	private PreparedStatement ajoutSH;
+	
+	private static String userDb="csacre15";
+	private static String passwordDb="8AWU2aF";
 	public DbAgent(){
 		super(userDb, passwordDb);
+		try {
+		ajoutComb = this.connexionDb.prepareStatement("SELECT * FROM shyeld.creation_combat(?,?,?,?,?,?,?,?);");
+		ajoutPa = this.connexionDb.prepareStatement("SELECT * FROM shyeld.creation_participation(?,?,?);");
+		ajoutRep = this.connexionDb.prepareStatement("SELECT * FROM shyeld.creation_reperage(?,?,?,?,?);");
+		checkCo = this.connexionDb.prepareStatement("SELECT * FROM shyeld.check_connexion(?);");
+		getAg = this.connexionDb.prepareStatement("SELECT * FROM shyeld.get_agent(?);");
+		ajoutSH = this.connexionDb.prepareStatement("SELECT * FROM shyeld.creation_superhero(?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
+		} catch (SQLException se){
+			se.printStackTrace();
+		}
 	}
 	
 	
@@ -19,9 +37,8 @@ public class DbAgent extends Db{
 		int id = -1;
 		try {
 			connexionDb.setAutoCommit(false);
-			String query = "SELECT * FROM shyeld.creation_combat(?,?,?,?,?,?,?,?);";
 			System.out.println(combat.getAgent());
-			try (PreparedStatement ajoutComb = this.connexionDb.prepareStatement(query);){
+			try {
 				ajoutComb.setDate(1, Util.formaterDate(combat.getDateCombat()));
 				ajoutComb.setInt(2, combat.getCoordCombatX());
 				ajoutComb.setInt(3, combat.getCoordCombatY());
@@ -62,8 +79,7 @@ public class DbAgent extends Db{
 	}
 
 	public int ajouterParticipation(Participation participation) {
-		String query = "SELECT * FROM shyeld.creation_participation(?,?,?);";
-		try (PreparedStatement ajoutPa = this.connexionDb.prepareStatement(query)) {
+		try {
 			ajoutPa.setInt(1, participation.getSuperhero());
 			ajoutPa.setInt(2, participation.getCombat());
 			ajoutPa.setString(3, String.valueOf(participation.getIssue()));
@@ -80,8 +96,7 @@ public class DbAgent extends Db{
 	}
 
 	public int ajouterReperage(Reperage reperage) throws ParseException {
-		String query ="SELECT * FROM shyeld.creation_reperage(?,?,?,?,?);";
-		try (PreparedStatement ajoutRep = this.connexionDb.prepareStatement(query);){
+		try {
 			ajoutRep.setInt(1, reperage.getAgent());
 			ajoutRep.setInt(2, reperage.getSuperhero());
 			ajoutRep.setInt(3, reperage.getCoordX());
@@ -101,8 +116,7 @@ public class DbAgent extends Db{
 
 
 	public String checkConnexion(String identifiant){
-		String query = "SELECT * FROM shyeld.check_connexion(?);";
-		try(PreparedStatement checkCo = this.connexionDb.prepareStatement(query);) {
+		try {
 			checkCo.setString(1, identifiant);
 			try (ResultSet rs = checkCo.executeQuery()) {
 				while(rs.next()){
@@ -116,8 +130,7 @@ public class DbAgent extends Db{
 		return null;
 	}
 	public int getAgent(String identifiant) throws SQLException {
-		String query = "SELECT * FROM shyeld.get_agent(?);";
-		try(PreparedStatement getAg = this.connexionDb.prepareStatement(query);) {
+		try {
 			getAg.setString(1, identifiant);
 			try(ResultSet rs = getAg.executeQuery()) {
 				while(rs.next()) {
@@ -131,8 +144,7 @@ public class DbAgent extends Db{
 		}
 	}
 	public int ajouterSuperHero(SuperHero superhero) throws ParseException {
-		String query ="SELECT * FROM shyeld.creation_superhero(?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
-		try(PreparedStatement ajoutSH = this.connexionDb.prepareStatement(query);) {
+		try {
 			ajoutSH.setString(1, superhero.getNomCivil());
 			ajoutSH.setString(2, superhero.getPrenomCivil());
 			ajoutSH.setString(3, superhero.getNomSuperhero());
