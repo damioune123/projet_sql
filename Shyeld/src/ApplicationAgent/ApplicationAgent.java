@@ -41,6 +41,7 @@ public class ApplicationAgent {
 			System.out.println("2. Ajouter son rapport au sujet d'un combat");
 			System.out.println("3. Ajouter un Reperage");
 			System.out.println("4. Signaler la mort d'un Superhero");
+			System.out.println("5. Quitter l'application");
 			int choix = scanner.nextInt();
 			switch(choix){
 			case 1 :
@@ -54,6 +55,9 @@ public class ApplicationAgent {
 				break;
 			case 4 :
 				signalerDecesSH();
+				break;
+			case 5 :
+				System.exit(0);
 				break;
 			default :	
 				System.out.println("Mauvais chiffre entré, faites attention la prochaine fois");

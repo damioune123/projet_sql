@@ -8,8 +8,8 @@ import java.text.ParseException;
 import java.util.InputMismatchException;
 
 public class DbShyeld extends Db{
-	private static String userDb="dmeur15";
-	private static String passwordDb="XcU46ay";
+	private static String userDb="postgres";
+	private static String passwordDb="Tiffy0603";
 	private PreparedStatement ia;
 	private PreparedStatement aa;
 	private PreparedStatement sa;
@@ -26,7 +26,7 @@ public class DbShyeld extends Db{
 			aa = this.connexionDb.prepareStatement("SELECT * FROM shyeld.affichageAgents;");
 			sa= this.connexionDb.prepareStatement("SELECT shyeld.supprimerAgent(?);");
 			pv = this.connexionDb.prepareStatement("SELECT * FROM shyeld.perte_visibilite;");
-			zc = this.connexionDb.prepareStatement("SELECT * FROM shyeld.zone_conflit;");
+			zc = this.connexionDb.prepareStatement("SELECT DISTINCT * FROM shyeld.zone_conflit();");
 			hr =this.connexionDb.prepareStatement("SELECT * FROM shyeld.historiqueReperagesAgent(?, ?, ?);");
 			cv= this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementVictoires;");
 			cd = this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementDefaites;");
