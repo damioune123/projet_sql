@@ -26,7 +26,7 @@ public class DbShyeld extends Db{
 			aa = this.connexionDb.prepareStatement("SELECT * FROM shyeld.affichageAgents;");
 			sa= this.connexionDb.prepareStatement("SELECT shyeld.supprimerAgent(?);");
 			pv = this.connexionDb.prepareStatement("SELECT * FROM shyeld.perte_visibilite;");
-			zc = this.connexionDb.prepareStatement("SELECT * FROM shyeld.zone_conflit;");
+			zc = this.connexionDb.prepareStatement("SELECT DISTINCT * FROM shyeld.zone_conflit();");
 			hr =this.connexionDb.prepareStatement("SELECT * FROM shyeld.historiqueReperagesAgent(?, ?, ?);");
 			cv= this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementVictoires;");
 			cd = this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementDefaites;");
@@ -140,7 +140,7 @@ public class DbShyeld extends Db{
 		}
 
 	}
-	public void historiqueAgentEntreDates(int id_agent, java.sql.Date dateDebutSQL, java.sql.Date dateFinSQL) throws ParseException{
+	public void historiqueAgentEntreDates(int id_agent, java.sql.Date dateDebutSQL, java.sql.Date dateFinSQL) {
 		try {
 			hr.setInt(1, id_agent);
 			hr.setDate(2, dateDebutSQL);

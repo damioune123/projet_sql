@@ -12,7 +12,7 @@ CREATE TYPE shyeld.affichageInfoSuperHero AS (id_superhero INTEGER, nom_civil va
 		 adresse_privee varchar(255), origine varchar(255), type_super_pouvoir VARCHAR(255), puissance_super_pouvoir INTEGER
 		 , derniere_coordonneeX INTEGER, derniere_coordonneeY INTEGER, date_derniere_apparition TIMESTAMP,
 		 clan shyeld.type_clan, nombre_victoires INTEGER,nombre_defaites INTEGER, est_vivant boolean);
-
+CREATE TYPE shyeld.zoneConflit AS (coordX INTEGER, coordY INTEGER);
 
 /************************************ CREATE TABLE ********************************************/
 
@@ -172,31 +172,124 @@ $$ LANGUAGE plpgsql;
 
 --partie 5 lister ensembles zone / zones adjacentes superheros
 
-DROP VIEW IF EXISTS shyeld.zone_conflit;
-
-CREATE VIEW shyeld.zone_conflit AS
-SELECT r.id_reperage, r.superhero, r.coord_x , r.coord_y,  (r.coord_x +1) as coord_x_est, r.coord_y as coord_y_est,  (r.coord_x-1) as coord_x_ouest , r.coord_y as coord_y_ouest,  r.coord_x  as coord_x_nord,
-	(r.coord_y +1) as coord_y_nord,  r.coord_x as coord_x_sud, (r.coord_y -1) as coord_y_sud
-FROM shyeld.reperages r, shyeld.superheros s 
-WHERE r.superhero = s.id_superhero
-AND (date_part('year', age(s.date_derniere_apparition)) < 1 
-     OR date_part('month', age(s.date_derniere_apparition)) < 1
-     OR date_part('day', age(s.date_derniere_apparition)) < 10)
-     AND s.clan='D'
-     AND s.est_vivant = 'TRUE'
-     GROUP BY r.id_reperage
-     HAVING 1 <= (SELECT count(s1.id_superhero)
-		  FROM shyeld.superheros s1, shyeld.reperages r1
-		  where r1.coord_x = r.coord_x
-			AND r1.coord_y = r.coord_y
-			AND (date_part('year', age(s1.date_derniere_apparition)) < 1 
-			     OR date_part('month', age(s1.date_derniere_apparition)) < 1
-			     OR date_part('day', age(s1.date_derniere_apparition)) < 10)
-			AND s1.id_superhero = r1.superhero
-			AND s1.est_vivant = 'TRUE'
-			AND s1.clan ='D');
-
-
+CREATE OR REPLACE FUNCTION shyeld.zone_conflit() RETURNS SETOF shyeld.zoneConflit as $$
+DECLARE
+	_sortie shyeld.zoneConflit;
+BEGIN
+	FOR _sortie IN SELECT s.derniere_coordonneeX, s.derniere_coordonneeY
+	FROM shyeld.superheros s
+	WHERE (date_part('year', age(s.date_derniere_apparition)) < 1 
+    	OR date_part('month', age(s.date_derniere_apparition)) < 1
+     	OR date_part('day', age(s.date_derniere_apparition)) < 10)
+	AND s.clan='M'
+	AND s.est_vivant = 'TRUE'
+	AND s.derniere_coordonneeY IS NOT NULL
+	AND s.derniere_coordonneeX IS NOT NULL
+	AND(1 <= (SELECT count(s1.id_superhero)
+		  		FROM shyeld.superheros s1
+		  		where s1.derniere_coordonneeX = s.derniere_coordonneeX
+				AND s1.derniere_coordonneeY = s.derniere_coordonneeY
+				AND (date_part('year', age(s1.date_derniere_apparition)) < 1 
+			    	OR date_part('month', age(s1.date_derniere_apparition)) < 1
+			    	OR date_part('day', age(s1.date_derniere_apparition)) < 10)
+				AND s1.est_vivant = 'TRUE'
+				AND s1.clan ='D')
+	OR 1 <= (SELECT count(s2.id_superhero)
+		  		FROM shyeld.superheros s2
+		  		where s2.derniere_coordonneeX = s.derniere_coordonneeX + 1
+				AND s2.derniere_coordonneeY = s.derniere_coordonneeY
+				AND (date_part('year', age(s2.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s2.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s2.date_derniere_apparition)) < 10)
+				AND s2.est_vivant = 'TRUE'
+				AND s2.clan ='D')
+	OR 1 <= (SELECT count(s3.id_superhero)
+		  		FROM shyeld.superheros s3
+		  		where s3.derniere_coordonneeX = s.derniere_coordonneeX - 1
+				AND s3.derniere_coordonneeY = s.derniere_coordonneeY
+				AND (date_part('year', age(s3.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s3.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s3.date_derniere_apparition)) < 10)
+				AND s3.est_vivant = 'TRUE'
+				AND s3.clan ='D')
+	OR 1 <= (SELECT count(s4.id_superhero)
+		  		FROM shyeld.superheros s4
+		  		where s4.derniere_coordonneeX = s.derniere_coordonneeX
+				AND s4.derniere_coordonneeY = s.derniere_coordonneeY + 1
+				AND (date_part('year', age(s4.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s4.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s4.date_derniere_apparition)) < 10)
+				AND s4.est_vivant = 'TRUE'
+				AND s4.clan ='D')
+	OR 1 <= (SELECT count(s5.id_superhero)
+		  		FROM shyeld.superheros s5
+		  		where s5.derniere_coordonneeX = s.derniere_coordonneeX
+				AND s5.derniere_coordonneeY = s.derniere_coordonneeY - 1
+				AND (date_part('year', age(s5.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s5.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s5.date_derniere_apparition)) < 10)
+				AND s5.est_vivant = 'TRUE'
+				AND s5.clan ='D')) LOOP
+		RETURN NEXT _sortie;
+	END LOOP;
+	FOR _sortie IN SELECT s.derniere_coordonneeX, s.derniere_coordonneeY
+	FROM shyeld.superheros s
+	WHERE (date_part('year', age(s.date_derniere_apparition)) < 1 
+    	OR date_part('month', age(s.date_derniere_apparition)) < 1
+     	OR date_part('day', age(s.date_derniere_apparition)) < 10)
+	AND s.clan='D'
+	AND s.est_vivant = 'TRUE'
+	AND s.derniere_coordonneeY IS NOT NULL
+	AND s.derniere_coordonneeX IS NOT NULL
+	AND(1 <= (SELECT count(s1.id_superhero)
+		  		FROM shyeld.superheros s1
+		  		where s1.derniere_coordonneeX = s.derniere_coordonneeX
+				AND s1.derniere_coordonneeY = s.derniere_coordonneeY
+				AND (date_part('year', age(s1.date_derniere_apparition)) < 1 
+			    	OR date_part('month', age(s1.date_derniere_apparition)) < 1
+			    	OR date_part('day', age(s1.date_derniere_apparition)) < 10)
+				AND s1.est_vivant = 'TRUE'
+				AND s1.clan ='M')
+	OR 1 <= (SELECT count(s2.id_superhero)
+		  		FROM shyeld.superheros s2
+		  		where s2.derniere_coordonneeX = s.derniere_coordonneeX + 1
+				AND s2.derniere_coordonneeY = s.derniere_coordonneeY
+				AND (date_part('year', age(s2.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s2.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s2.date_derniere_apparition)) < 10)
+				AND s2.est_vivant = 'TRUE'
+				AND s2.clan ='M')
+	OR 1 <= (SELECT count(s3.id_superhero)
+		  		FROM shyeld.superheros s3
+		  		where s3.derniere_coordonneeX = s.derniere_coordonneeX - 1
+				AND s3.derniere_coordonneeY = s.derniere_coordonneeY
+				AND (date_part('year', age(s3.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s3.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s3.date_derniere_apparition)) < 10)
+				AND s3.est_vivant = 'TRUE'
+				AND s3.clan ='M')
+	OR 1 <= (SELECT count(s4.id_superhero)
+		  		FROM shyeld.superheros s4
+		  		where s4.derniere_coordonneeX = s.derniere_coordonneeX
+				AND s4.derniere_coordonneeY = s.derniere_coordonneeY + 1
+				AND (date_part('year', age(s4.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s4.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s4.date_derniere_apparition)) < 10)
+				AND s4.est_vivant = 'TRUE'
+				AND s4.clan ='M')
+	OR 1 <= (SELECT count(s5.id_superhero)
+		  		FROM shyeld.superheros s5
+		  		where s5.derniere_coordonneeX = s.derniere_coordonneeX
+				AND s5.derniere_coordonneeY = s.derniere_coordonneeY - 1
+				AND (date_part('year', age(s5.date_derniere_apparition)) < 1 
+			     	OR date_part('month', age(s5.date_derniere_apparition)) < 1
+			     	OR date_part('day', age(s5.date_derniere_apparition)) < 10)
+				AND s5.est_vivant = 'TRUE'
+				AND s5.clan ='M')) LOOP
+		RETURN NEXT _sortie;
+	END LOOP;
+END;
+$$LANGUAGE plpgsql;
 -- PARTIE 6 Historique d'un agent
 CREATE OR REPLACE FUNCTION shyeld.historiqueReperagesAgent(INTEGER, TIMESTAMP, TIMESTAMP) RETURNS SETOF
 shyeld.listeReperagesAgent as $$

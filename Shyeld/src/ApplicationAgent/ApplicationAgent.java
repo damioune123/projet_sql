@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.Scanner;
 
 import Db.SuperHero;
 import Db.Util;
@@ -14,73 +15,82 @@ import Db.Reperage;
 
 public class ApplicationAgent {
 	
-	public static java.util.Scanner scanner = new java.util.Scanner(System.in);
-	public static DbAgent connexionDb = new DbAgent();
-	private static int idAgent;
-	private static boolean estConnecte;
-	
-	public static void main(String[] args) {
-		
+	private java.util.Scanner scanner = new java.util.Scanner(System.in); 
+	private DbAgent connexionDb = new DbAgent();
+	private int idAgent;
+	private boolean estConnecte;
+
+
+	public ApplicationAgent() {
+		super();
+	}
+
+	public void menuPrincipal() {
 		try {
-			connexion();			
-			menuPrincipal();
-		} catch (InputMismatchException ie) {
+			do {
+				System.out.println("--------------------------------------");
+				System.out.println(" Bienvenue dans l'Agent App");
+				System.out.println("--------------------------------------");
+				System.out.println("1. Informations sur un Superhero");
+				System.out.println("2. Ajouter son rapport au sujet d'un combat");
+				System.out.println("3. Ajouter un Reperage");
+				System.out.println("4. Signaler la mort d'un Superhero");
+				System.out.println("5. Quitter l'application");
+				
+				int choix;
+				choix = scanner.nextInt();
+	
+				switch(choix){
+				case 1 :
+					informationSuperHero();
+					break;
+				case 2 :
+					rapportCombat();
+					break;
+				case 3 : 
+					reperage();
+					break;
+				case 4 :
+					signalerDecesSH();
+					break;
+				case 5:
+					System.exit(0);
+				default :	
+					System.out.println("Mauvais chiffre entré, faites attention la prochaine fois");
+				}
+				System.out.println("Voulez vous continuer (O/N)");
+			} while(Util.lireCharOouN(scanner.next().charAt(0)));
+		} catch (InputMismatchException im){
+			System.out.println("Attention à votre écriture !");
 			scanner = new java.util.Scanner(System.in);
-			if(estConnecte)
-				menuPrincipal();
-			main(args);
+			this.menuPrincipal();
 		}
 	}
 
-	private static void menuPrincipal() {
-		do {
-			System.out.println("--------------------------------------");
-			System.out.println(" Bienvenue dans l'Agent App");
-			System.out.println("--------------------------------------");
-			System.out.println("1. Informations sur un Superhero");
-			System.out.println("2. Ajouter son rapport au sujet d'un combat");
-			System.out.println("3. Ajouter un Reperage");
-			System.out.println("4. Signaler la mort d'un Superhero");
-			int choix = scanner.nextInt();
-			switch(choix){
-			case 1 :
-				informationSuperHero();
-				break;
-			case 2 :
-				rapportCombat();
-				break;
-			case 3 : 
-				reperage();
-				break;
-			case 4 :
-				signalerDecesSH();
-				break;
-			default :	
-				System.out.println("Mauvais chiffre entré, faites attention la prochaine fois");
-			}
-			System.out.println("Voulez vous continuer (O/N)");
-		} while(Util.lireCharOouN(scanner.next().charAt(0)));
+	public void connexion() {
+		try {
+			System.out.println("-----------------------------------------");
+			System.out.println("Bienvenue dans la fenêtre de connexion");
+			System.out.println("-----------------------------------------");
+			System.out.println("1. Se connecter");
+			System.out.println("2. Quitter l'application");
+			do {
+				int choixLogin = scanner.nextInt();
+				switch(choixLogin) {
+				case 1 :
+					login();
+					break;
+				case 2 :
+					System.exit(0);
+				}
+			} while(!estConnecte);
+		} catch (InputMismatchException im) {
+			System.out.println("Faites attention à votre écriture !");
+			scanner = new java.util.Scanner(System.in);
+			this.connexion();
+		}
 	}
-
-	private static void connexion() {
-		System.out.println("-----------------------------------------");
-		System.out.println("Bienvenue dans la fenêtre de connexion");
-		System.out.println("-----------------------------------------");
-		System.out.println("1. Se connecter");
-		System.out.println("2. Quitter l'application");
-		do {
-			int choixLogin = scanner.nextInt();
-			switch(choixLogin) {
-			case 1 :
-				login();
-				break;
-			case 2 :
-				System.exit(0);
-			}
-		} while(!estConnecte);
-	}
-		
-	private static void login(){
+	private void login(){
 		while(true){
 			System.out.println("Entrez votre identifiant : ");
 			String identifiant = scanner.next();
@@ -89,7 +99,7 @@ public class ApplicationAgent {
 			String mdpHashed = connexionDb.checkConnexion(identifiant);
 			if(mdpHashed != null && Util.verifPasswordBcrypt(mdpClair, mdpHashed)) {
 				try {
-					idAgent = connexionDb.getAgent(identifiant);
+					this.idAgent = connexionDb.getAgent(identifiant);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
@@ -100,8 +110,10 @@ public class ApplicationAgent {
 		}
 		
 	}
+		
 	
-	private static void informationSuperHero(){
+	
+	public void informationSuperHero(){
 		System.out.println("Veuilliez entrer le nom de votre superhero : ");
 		String nom = scanner.next();
 		ArrayList<SuperHero> listeSuperHero = connexionDb.informationSuperHero(nom);
@@ -115,7 +127,7 @@ public class ApplicationAgent {
 		}
 	}
 	
-	private static int creationSuperHero(String nomSuperHero) {
+	public int creationSuperHero(String nomSuperHero) {
 		System.out.println("Veuilliez entrer le nom civil du superhéros : ");
 		String nom = scanner.next();
 		System.out.println("Veuilliez entrer le prenom civil du superhéros");
@@ -171,7 +183,7 @@ public class ApplicationAgent {
 		return idSuperHero;
 	}
 
-	private static void rapportCombat() {
+	public void rapportCombat() {
 		ArrayList<Participation> participations = new ArrayList<Participation>();
 		System.out.println("---------------------------------------------------");
 		System.out.println("Bienvenue dans l'encodage d'un rapport de combat");
@@ -206,7 +218,7 @@ public class ApplicationAgent {
 		
 	}
 	
-	private static Participation ajouterParticipation(int idCombat, int numeroLigne) {
+	public Participation ajouterParticipation(int idCombat, int numeroLigne) {
 		System.out.println("------------------------------------------------");
 		System.out.println("Bienvenue dans l'encodage d'une participation");
 		System.out.println("-------------------------------------------------");
@@ -218,7 +230,7 @@ public class ApplicationAgent {
 		return new Participation(idSuperHero, idCombat, issue, numeroLigne);
 	}
 	
-	private static void reperage(){
+	public void reperage(){
 		System.out.println("-------------------------------------------");
 		System.out.println("Bienvenue dans l'encodage d'un reperage");
 		System.out.println("-------------------------------------------");
@@ -244,7 +256,7 @@ public class ApplicationAgent {
 		}
 	}
 
-	private static int checkSiPresent(String nomSuperHero) {
+	public int checkSiPresent(String nomSuperHero) {
 		ArrayList<SuperHero> superheros = connexionDb.informationSuperHero(nomSuperHero);
 		int idSuperHero = -1;
 		for(SuperHero superhero : superheros) {
@@ -262,7 +274,7 @@ public class ApplicationAgent {
 		return idSuperHero;
 	}
 	
-	private static void signalerDecesSH(){
+	public void signalerDecesSH(){
 		System.out.println("----------------------------------");
 		System.out.println("Bienvenue en ce jour funeste");
 		System.out.println("----------------------------------");
