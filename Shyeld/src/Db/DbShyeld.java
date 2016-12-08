@@ -23,7 +23,7 @@ public class DbShyeld extends Db{
 		super(userDb, passwordDb);
 		try{
 			ia = this.connexionDb.prepareStatement("SELECT shyeld.inscription_agent(?, ?, ?, ?);");
-			aa = this.connexionDb.prepareStatement("SELECT * FROM shyeld.affichageAgents;");
+			aa = this.connexionDb.prepareStatement("SELECT * FROM shyeld.affichageAgents;",ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			sa= this.connexionDb.prepareStatement("SELECT shyeld.supprimerAgent(?);");
 			pv = this.connexionDb.prepareStatement("SELECT * FROM shyeld.perte_visibilite;");
 			zc = this.connexionDb.prepareStatement("SELECT DISTINCT * FROM shyeld.zone_conflit();");
@@ -58,6 +58,10 @@ public class DbShyeld extends Db{
 	public void affichageAllAgents(){
 		try {
 			try(ResultSet rs= aa.executeQuery()) {
+				if(rs.isBeforeFirst()){
+					DBTablePrinter.printResultSet(rs);
+					rs.beforeFirst();
+				}
 				while(rs.next()) {
 					System.out.println("id agent :"+rs.getString("id_agent")+"  nom agent :"+rs.getString("nom")+"  prenom agent "
 							+rs.getString("prenom")+"  identifiant :"+rs.getString("identifiant") );
@@ -92,7 +96,8 @@ public class DbShyeld extends Db{
 		System.out.println("Vous avez choisi d'inspecter la perte de visibilité des super héros");
 		try {
 			try(ResultSet rs= pv.executeQuery()) {
-				int nombreColonnes=rs.getMetaData().getColumnCount();
+				DBTablePrinter.printResultSet(rs);
+				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
 
 				for (int i = 1; i <= nombreColonnes; i++) {
@@ -105,7 +110,7 @@ public class DbShyeld extends Db{
 						row2 += rs.getString(i) + ", ";          
 					}
 					System.out.println(row2);
-				}	
+				}*/	
 			}
 		} catch (SQLException se) {
 			System.out.println(se.getMessage());
@@ -118,7 +123,8 @@ public class DbShyeld extends Db{
 		System.out.println("Vous avez choisi d'inspecter les zones à conflits");
 		try {
 			try(ResultSet rs= zc.executeQuery()) {
-				int nombreColonnes=rs.getMetaData().getColumnCount();
+				DBTablePrinter.printResultSet(rs);
+				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
 
 				for (int i = 1; i <= nombreColonnes; i++) {
@@ -131,7 +137,7 @@ public class DbShyeld extends Db{
 						row2 += rs.getString(i) + ", ";          
 					}
 					System.out.println(row2);
-				}	
+				}*/	
 			}
 		} catch (SQLException se) {
 			System.out.println(se.getMessage());
@@ -146,7 +152,8 @@ public class DbShyeld extends Db{
 			hr.setDate(2, dateDebutSQL);
 			hr.setDate(3, dateFinSQL);
 			try(ResultSet rs= hr.executeQuery()) {
-				int nombreColonnes=rs.getMetaData().getColumnCount();
+				DBTablePrinter.printResultSet(rs);
+				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
 
 				for (int i = 1; i <= nombreColonnes; i++) {
@@ -159,7 +166,7 @@ public class DbShyeld extends Db{
 						row2 += rs.getString(i) + ", ";          
 					}
 					System.out.println(row2);		
-				}
+				}*/
 
 			}
 		} catch (SQLException se) {
@@ -174,7 +181,8 @@ public class DbShyeld extends Db{
 		
 		try {
 			try(ResultSet rs= cv.executeQuery()) {
-				int nombreColonnes=rs.getMetaData().getColumnCount();
+				DBTablePrinter.printResultSet(rs);
+				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
 
 				for (int i = 1; i <= nombreColonnes; i++) {
@@ -187,7 +195,7 @@ public class DbShyeld extends Db{
 						row2 += rs.getString(i) + ", ";          
 					}
 					System.out.println(row2);
-				}	
+				}*/	
 			}
 		} catch (SQLException se) {
 			System.out.println(se.getMessage());
@@ -201,7 +209,8 @@ public class DbShyeld extends Db{
 	
 		try {
 			try(ResultSet rs= cd.executeQuery()) {
-				int nombreColonnes=rs.getMetaData().getColumnCount();
+				DBTablePrinter.printResultSet(rs);
+				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
 
 				for (int i = 1; i <= nombreColonnes; i++) {
@@ -214,7 +223,7 @@ public class DbShyeld extends Db{
 						row2 += rs.getString(i) + ", ";          
 					}
 					System.out.println(row2);
-				}	
+				}*/	
 			}
 		} catch (SQLException se) {
 			System.out.println(se.getMessage());
@@ -227,7 +236,8 @@ public class DbShyeld extends Db{
 		System.out.println("Vous avez choisi de voir le classement des repérages des agents");
 		try {
 			try(ResultSet rs= cr.executeQuery()) {
-				int nombreColonnes=rs.getMetaData().getColumnCount();
+				DBTablePrinter.printResultSet(rs);
+				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
 
 				for (int i = 1; i <= nombreColonnes; i++) {
@@ -240,7 +250,7 @@ public class DbShyeld extends Db{
 						row2 += rs.getString(i) + ", ";          
 					}
 					System.out.println(row2);
-				}	
+				}*/	
 			}
 		} catch (SQLException se) {
 			System.out.println(se.getMessage());

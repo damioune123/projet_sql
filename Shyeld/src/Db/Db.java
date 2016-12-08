@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class Db {
@@ -14,6 +15,7 @@ public class Db {
 	
 	public static String IPHOST_PORT ="localhost:5433";//a changer
 	public static String nomBDDN ="shyeld"; //a changer
+	private HashMap<String,PreparedStatement> tableStatement = new HashMap<String,PreparedStatement>();
 	
 	protected Db(String userDb, String passwordDb) {
 		if(connexionDb == null) {
@@ -26,6 +28,11 @@ public class Db {
 			String url="jdbc:postgresql://"+IPHOST_PORT+"/"+nomBDDN+ "?user="+userDb+"&password="+passwordDb;
 			try {
 				this.connexionDb=DriverManager.getConnection(url);
+				PreparedStatement infoSH = this.connexionDb.prepareStatement("SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(?);",
+						ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+				this.tableStatement.put("infoSH", infoSH);
+				PreparedStatement suppSH =this.connexionDb.prepareStatement("SELECT * FROM shyeld.supprimerSuperHeros(?);");
+				this.tableStatement.put("suppSH", suppSH);
 			} catch (SQLException e) {
 				System.out.println("Impossible de joindre le server !");
 				System.exit(1);
@@ -33,11 +40,9 @@ public class Db {
 		}
 	}
 	public SuperHero informationSuperHero(String nomSuperHero){
-		ArrayList<SuperHero> listeSuperHero = new ArrayList<SuperHero>();
-		String query ="SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(?);";
-		try (PreparedStatement infoSH = this.connexionDb.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);){
-			infoSH.setString(1, nomSuperHero);
-			try(ResultSet rs = infoSH.executeQuery()) {
+		try {
+			this.tableStatement.get("infoSH").setString(1, nomSuperHero);
+			try(ResultSet rs = this.tableStatement.get("infoSH").executeQuery()) {
 				if(rs.isBeforeFirst()){
 					DBTablePrinter.printResultSet(rs);
 					rs.beforeFirst();
@@ -56,10 +61,9 @@ public class Db {
 	}
 	
 	public int supprimerSuperHero(int idSuperHero) {
-		String query = "SELECT * FROM shyeld.supprimerSuperHeros(?);";
-		try(PreparedStatement suppSH =this.connexionDb.prepareStatement(query);) {
-			suppSH.setInt(1, idSuperHero);
-			try(ResultSet rs = suppSH.executeQuery()) {
+		try {
+			this.tableStatement.get("suppSH").setInt(1, idSuperHero);
+			try(ResultSet rs = this.tableStatement.get("suppSH").executeQuery()) {
 				while(rs.next()) {
 					return Integer.valueOf(rs.getString(1));
 				}
