@@ -122,36 +122,39 @@ public class ApplicationShyeld {
 
 	}
 	private static int checkSiPresent(String nomSuperHero) {
-		ArrayList<SuperHero> superheros = accesBDDN.informationSuperHero(nomSuperHero);
+		SuperHero superhero = accesBDDN.informationSuperHero(nomSuperHero);
 		int idSuperHero = -1;
-		for(SuperHero superhero : superheros) {
+		if(superhero != null) {
 			System.out.println("S'agit t'il de celui-ci ? (O/N)");
 			Scanner scanner = new Scanner(System.in);
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){
 				idSuperHero = superhero.getIdSuperhero();
-				break;
-			} 
+			} else {
+				idSuperHero = -2;
+			}
 		}
 		return idSuperHero;
 	}
 	
-	
-	
-	
 	private static void signalerDecesSH(){
+		Scanner scanner = new Scanner(System.in);
 		System.out.println("----------------------------------");
 		System.out.println("Bienvenue en ce jour funeste");
 		System.out.println("----------------------------------");
-		System.out.println("Veuilliez entrer le nom du superhero : ");
-		Scanner scanner = new Scanner(System.in);
+		System.out.println("Veuilliez entrer le nom du superhéro : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
-		System.out.println("Nous allons procï¿½dï¿½ ï¿½ l'inhumation de ce superhero ...");
-		
-		accesBDDN.supprimerSuperHero(idSuperHero);
+		if(idSuperHero < -1) {
+			System.out.println("Le héros à miraculeusement survécus");
+		} else if (idSuperHero < 0) {
+			System.out.println("Aucun héro présent sous ce nom là");
+		}
+		else {
+			System.out.println("Nous allons inhumer ce superhéro ...");
+			accesBDDN.supprimerSuperHero(idSuperHero);
+		}
 	}
-	
 	
 
 }

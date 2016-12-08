@@ -32,25 +32,27 @@ public class Db {
 			}
 		}
 	}
-	public ArrayList<SuperHero> informationSuperHero(String nomSuperHero){
+	public SuperHero informationSuperHero(String nomSuperHero){
 		ArrayList<SuperHero> listeSuperHero = new ArrayList<SuperHero>();
 		String query ="SELECT * FROM shyeld.rechercherSuperHerosParNomSuperHero(?);";
-		try (PreparedStatement infoSH = this.connexionDb.prepareStatement(query);){
+		try (PreparedStatement infoSH = this.connexionDb.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);){
 			infoSH.setString(1, nomSuperHero);
 			try(ResultSet rs = infoSH.executeQuery()) {
-				while(rs.next()) {
-					String x1 = rs.getString(1);
-					System.out.println(x1);
-					listeSuperHero.add(new SuperHero(Integer.valueOf(rs.getString(1)),rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6),
-								rs.getString(7), Integer.valueOf(rs.getString(8)), Integer.valueOf(rs.getString(9)), Integer.valueOf(rs.getString(10)), rs.getString(11),
-								rs.getString(12).charAt(0), Integer.valueOf(rs.getString(13)), Integer.valueOf(rs.getString(14)), Boolean.valueOf(rs.getString(15))));
+				if(rs.isBeforeFirst()){
+					DBTablePrinter.printResultSet(rs);
+					rs.beforeFirst();
 				}
-				return listeSuperHero;
+				while(rs.next()) {
+					return new SuperHero(Integer.valueOf(rs.getString(1)),rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6),
+								rs.getString(7), Integer.valueOf(rs.getString(8)), Integer.valueOf(rs.getString(9)), Integer.valueOf(rs.getString(10)), rs.getString(11),
+								rs.getString(12).charAt(0), Integer.valueOf(rs.getString(13)), Integer.valueOf(rs.getString(14)), Boolean.valueOf(rs.getString(15)));
+				}
 			}
 		} catch (SQLException se) {
 			se.printStackTrace();
 			return null;
 		}
+		return null;
 	}
 	
 	public int supprimerSuperHero(int idSuperHero) {

@@ -60,7 +60,7 @@ public class ApplicationAgent {
 				System.exit(0);
 				break;
 			default :	
-				System.out.println("Mauvais chiffre entré, faites attention la prochaine fois");
+				System.out.println("Mauvais chiffre entrÃ©, faites attention la prochaine fois");
 			}
 			System.out.println("Voulez vous continuer (O/N)");
 		} while(Util.lireCharOouN(scanner.next().charAt(0)));
@@ -68,7 +68,7 @@ public class ApplicationAgent {
 
 	private static void connexion() {
 		System.out.println("-----------------------------------------");
-		System.out.println("Bienvenue dans la fenêtre de connexion");
+		System.out.println("Bienvenue dans la fenÃªtre de connexion");
 		System.out.println("-----------------------------------------");
 		System.out.println("1. Se connecter");
 		System.out.println("2. Quitter l'application");
@@ -108,21 +108,21 @@ public class ApplicationAgent {
 	private static void informationSuperHero(){
 		System.out.println("Veuilliez entrer le nom de votre superhero : ");
 		String nom = scanner.next();
-		ArrayList<SuperHero> listeSuperHero = connexionDb.informationSuperHero(nom);
-		if(!listeSuperHero.isEmpty()) {
-			for(SuperHero superHero: listeSuperHero) {
+		SuperHero superHero = connexionDb.informationSuperHero(nom);
+		if(superHero != null) {
+			/*for(SuperHero superHero: listeSuperHero) {
 				System.out.println(superHero.toString());
-			}
+			}*/
 		} else {
-			System.out.println("Aucun Héros ne correspond au nom entré, le processus d'inscription de l'hï¿½ros est lancï¿½ : ");
+			System.out.println("Aucun HÃ©ros ne correspond au nom entrÃ©, le processus d'inscription est lancÃ© : ");
 			creationSuperHero(nom);
 		}
 	}
 	
 	private static int creationSuperHero(String nomSuperHero) {
-		System.out.println("Veuilliez entrer le nom civil du superhéros : ");
+		System.out.println("Veuilliez entrer le nom civil du superhÃ©ros : ");
 		String nom = scanner.next();
-		System.out.println("Veuilliez entrer le prenom civil du superhéros");
+		System.out.println("Veuilliez entrer le prenom civil du superhÃ©ros");
 		String prenom = scanner.next();
 		if(nomSuperHero == null) {
 			System.out.println("Veuilliez entrer le surnom : ");
@@ -130,23 +130,23 @@ public class ApplicationAgent {
 		}
 		System.out.println("Entrer l'adresse du superhero : ");
 		String adresse = scanner.next();
-		System.out.println("Entrer l'origine du superhéros : ");
+		System.out.println("Entrer l'origine du superhÃ©ros : ");
 		String origine = scanner.next();
 		System.out.println("Entrer le type de super pouvoir qu'il possede : ");
 		String typePouvoir = scanner.next();
 		System.out.println("Entrer la puissance du super pouvoir : ");
 		int puissancePouvoir = scanner.nextInt();
-		System.out.println("Entrer la coordonnée X 1l'avez aperçu : ");
+		System.out.println("Entrer la coordonnÃ©e X 1l'avez aperÃ©u : ");
 		int coordX = scanner.nextInt();
-		System.out.println("Entrer à présent la coordonnée Y où vous l'avez aperçu : ");
+		System.out.println("Entrer Ã© prÃ©sent la coordonnÃ©e Y oÃ© vous l'avez aperÃ©u : ");
 		int coordY = scanner.nextInt();
-		System.out.println("A quelle date l'avez vous aperçu : ");
+		System.out.println("A quelle date l'avez vous aperÃ©u : ");
 		String date = scanner.next();
 		System.out.println("Quel est son clan ? (M/D)");
 		char clan = scanner.next().charAt(0);
 		System.out.println("Combien de victoires a t'il eu ? ");
 		int victoires = scanner.nextInt();
-		System.out.println("Combien de défaites a t'il eu ?");
+		System.out.println("Combien de dÃ©faites a t'il eu ?");
 		int defaites = scanner.nextInt();
 		boolean estVivant;
 		char vivantChar;
@@ -168,9 +168,9 @@ public class ApplicationAgent {
 			System.out.println("Erreur lors de l'encodage de la date");
 		}
 		if(idSuperHero < 0){
-			System.out.println("L'ajout n'a pas pu être effectué");
+			System.out.println("L'ajout n'a pas pu Ã©tre effectuÃ©");
 		} else {
-			System.out.println("Le SuperHero est ajouté sous l'id : " + idSuperHero);
+			System.out.println("Le SuperHero est ajoutÃ© sous l'id : " + idSuperHero);
 		}
 		return idSuperHero;
 	}
@@ -182,13 +182,13 @@ public class ApplicationAgent {
 		System.out.println("---------------------------------------------------");
 		System.out.println("Veuilliez tout d'abord indiquer la date du combat :(dd-mm-yyyy) ");
 		String date = scanner.next();
-		System.out.println("Quelle était la coordonnée X du combat : ");
+		System.out.println("Quelle Ã©tait la coordonnÃ©e X du combat : ");
 		int coordX = scanner.nextInt();
-		System.out.println("Quelle était la coordonnée Y du combat : ");
+		System.out.println("Quelle Ã©tait la coordonnÃ©e Y du combat : ");
 		int coordY = scanner.nextInt();
 		int idCombat = -1;
 		try {
-			System.out.println("Nous allons à présent passer à l'encodage des participations");
+			System.out.println("Nous allons Ã© prÃ©sent passer Ã© l'encodage des participations");
 			int i = 0;
 			char boucle;
 			do {
@@ -205,7 +205,7 @@ public class ApplicationAgent {
 		if(idCombat < 0){
 			System.out.println("Erreur lors de l'ajout du combat");
 		} else {
-			System.out.println("Le combat a été ajouté sous l'id : " + idCombat);
+			System.out.println("Le combat a Ã©tÃ© ajoutÃ© sous l'id : " + idCombat);
 		}
 		
 	}
@@ -214,7 +214,7 @@ public class ApplicationAgent {
 		System.out.println("------------------------------------------------");
 		System.out.println("Bienvenue dans l'encodage d'une participation");
 		System.out.println("-------------------------------------------------");
-		System.out.println("Commencer par entrer le surnom du superhéros : ");
+		System.out.println("Commencer par entrer le surnom du superhÃ©ros : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
 		System.out.println("Comment s'est termine le combat pour cette personne (G/P/N) ? ");
@@ -226,12 +226,12 @@ public class ApplicationAgent {
 		System.out.println("-------------------------------------------");
 		System.out.println("Bienvenue dans l'encodage d'un reperage");
 		System.out.println("-------------------------------------------");
-		System.out.println("Commencer par entrer le nom du superhéros que vous avez aperçu : ");
+		System.out.println("Commencer par entrer le nom du superhÃ©ros que vous avez aperÃ©u : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
-		System.out.println("Veuilliez entrer la coordonnée X : ");
+		System.out.println("Veuilliez entrer la coordonnÃ©e X : ");
 		int coordX = scanner.nextInt();
-		System.out.println("Veuilliez entrer la coordonnée Y : ");
+		System.out.println("Veuilliez entrer la coordonnÃ©e Y : ");
 		int coordY = scanner.nextInt();
 		System.out.println("A quelle date l'avez vous vu ? (dd-mm-yyyy)");
 		String date = scanner.next();
@@ -242,26 +242,26 @@ public class ApplicationAgent {
 			System.out.println("Erreur lors de l'encodage de la date");
 		}
 		if(idReperage < 0) {
-			System.out.println("Erreur lors de l'ajout du repérage");
+			System.out.println("Erreur lors de l'ajout du repÃ©rage");
 		} else {
-			System.out.println("Le repérage a bien été ajouté");
+			System.out.println("Le repÃ©rage a bien Ã©tÃ© ajoutÃ©");
 		}
 	}
 
 	private static int checkSiPresent(String nomSuperHero) {
-		ArrayList<SuperHero> superheros = connexionDb.informationSuperHero(nomSuperHero);
+		SuperHero superhero = connexionDb.informationSuperHero(nomSuperHero);
 		int idSuperHero = -1;
-		for(SuperHero superhero : superheros) {
+		if(superhero != null) {
 			System.out.println("S'agit t'il de celui-ci ? (O/N)");
-			System.out.println(superhero.toString());
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){
 				idSuperHero = superhero.getIdSuperhero();
-				break;
-			} 
-		}
-		if(idSuperHero < 0){
-			idSuperHero = creationSuperHero(null);
+			} else {
+				idSuperHero = -2;
+			}
+			if(idSuperHero < 0){
+				idSuperHero = creationSuperHero(null);
+			}
 		}
 		return idSuperHero;
 	}
@@ -270,11 +270,17 @@ public class ApplicationAgent {
 		System.out.println("----------------------------------");
 		System.out.println("Bienvenue en ce jour funeste");
 		System.out.println("----------------------------------");
-		System.out.println("Veuilliez entrer le nom du superhéro : ");
+		System.out.println("Veuilliez entrer le nom du superhÃ©ro : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
-		System.out.println("Nous allons inhumer ce superhéro ...");
-		connexionDb.supprimerSuperHero(idSuperHero);
+		if(idSuperHero < -1) {
+			System.out.println("Le hÃ©ros Ã  miraculeusement survÃ©cus");
+		} else if (idSuperHero < 0) {
+			System.out.println("Aucun hÃ©ro prÃ©sent sous ce nom lÃ ");
+		}else {
+			System.out.println("Nous allons inhumer ce superhÃ©ro ...");
+			connexionDb.supprimerSuperHero(idSuperHero);
+		}
 	}
 }
 
