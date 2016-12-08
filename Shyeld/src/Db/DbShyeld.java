@@ -4,42 +4,45 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.HashMap;
 
 public class DbShyeld extends Db{
 	private static String userDb="dmeur15";
 	private static String passwordDb="XcU46ay";
-	private PreparedStatement ia;
-	private PreparedStatement aa;
-	private PreparedStatement sa;
-	private PreparedStatement pv;
-	private PreparedStatement zc;
-	private PreparedStatement hr;
-	private PreparedStatement cv;
-	private PreparedStatement cd;
-	private PreparedStatement cr;
+	private HashMap<String,PreparedStatement> tableStatement;
 	public DbShyeld(){
 		super(userDb, passwordDb);
 		try{
-			ia = this.connexionDb.prepareStatement("SELECT shyeld.inscription_agent(?, ?, ?, ?);");
-			aa = this.connexionDb.prepareStatement("SELECT * FROM shyeld.affichageAgents;",ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-			sa= this.connexionDb.prepareStatement("SELECT shyeld.supprimerAgent(?);");
-			pv = this.connexionDb.prepareStatement("SELECT * FROM shyeld.perte_visibilite;");
-			zc = this.connexionDb.prepareStatement("SELECT DISTINCT * FROM shyeld.zone_conflit();");
-			hr =this.connexionDb.prepareStatement("SELECT * FROM shyeld.historiqueReperagesAgent(?, ?, ?);");
-			cv= this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementVictoires;");
-			cd = this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementDefaites;");
-			cr = this.connexionDb.prepareStatement( "SELECT * FROM shyeld.classementReperages;");
+			tableStatement = new HashMap<String,PreparedStatement>();
+			PreparedStatement ia = this.connexionDb.prepareStatement("SELECT shyeld.inscription_agent(?, ?, ?, ?);");
+			tableStatement.put("ia", ia);
+			PreparedStatement aa = this.connexionDb.prepareStatement("SELECT * FROM shyeld.affichageAgents;",ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+			tableStatement.put("aa", aa);
+			PreparedStatement sa= this.connexionDb.prepareStatement("SELECT shyeld.supprimerAgent(?);");
+			tableStatement.put("sa", sa);
+			PreparedStatement pv = this.connexionDb.prepareStatement("SELECT * FROM shyeld.perte_visibilite;");
+			tableStatement.put("pv", pv);
+			PreparedStatement zc = this.connexionDb.prepareStatement("SELECT DISTINCT * FROM shyeld.zone_conflit();");
+			tableStatement.put("zc", zc);
+			PreparedStatement hr =this.connexionDb.prepareStatement("SELECT * FROM shyeld.historiqueReperagesAgent(?, ?, ?);");
+			tableStatement.put("hr", hr);
+			PreparedStatement cv= this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementVictoires;");
+			tableStatement.put("cv", cv);
+			PreparedStatement cd = this.connexionDb.prepareStatement("SELECT * FROM shyeld.classementDefaites;");
+			tableStatement.put("cd", cd);
+			PreparedStatement cr = this.connexionDb.prepareStatement( "SELECT * FROM shyeld.classementReperages;");
+			tableStatement.put("cr", cr);
 		} catch (SQLException se){
 			se.printStackTrace();
 		}
 	}
 	public void inscriptionAgent(String nom, String prenom, String identifiant, String mdp){
 		try  {
-			ia.setString(1, nom);
-			ia.setString(2, prenom);
-			ia.setString(3, identifiant);
-			ia.setString(4, mdp);
-			try(ResultSet rs = ia.executeQuery()) {
+			tableStatement.get("ia").setString(1, nom);
+			tableStatement.get("ia").setString(2, prenom);
+			tableStatement.get("ia").setString(3, identifiant);
+			tableStatement.get("ia").setString(4, mdp);
+			try(ResultSet rs = tableStatement.get("ia").executeQuery()) {
 				while(rs.next()) {
 					System.out.println("L'agent a bien été ajouté (id dans la bddn :"+rs.getInt("inscription_agent")+")");
 				}
@@ -55,7 +58,7 @@ public class DbShyeld extends Db{
 	}
 	public void affichageAllAgents(){
 		try {
-			try(ResultSet rs= aa.executeQuery()) {
+			try(ResultSet rs= tableStatement.get("aa").executeQuery()) {
 				if(rs.isBeforeFirst()){
 					DBTablePrinter.printResultSet(rs);
 					rs.beforeFirst();
@@ -74,8 +77,8 @@ public class DbShyeld extends Db{
 
 	public void suppressionAgent(int id_agent){		
 		try {
-			sa.setInt(1, id_agent);
-			try(ResultSet rs= sa.executeQuery()) {
+			tableStatement.get("sa").setInt(1, id_agent);
+			try(ResultSet rs= tableStatement.get("sa").executeQuery()) {
 				while(rs.next()) {
 					System.out.println("L'agent à l'id : "+rs.getInt("supprimeragent")+ " a bien été supprimé !");
 				}
@@ -93,7 +96,7 @@ public class DbShyeld extends Db{
 	public void infoPerteVisibiliteSuperHero(){
 		System.out.println("Vous avez choisi d'inspecter la perte de visibilité des super héros");
 		try {
-			try(ResultSet rs= pv.executeQuery()) {
+			try(ResultSet rs= tableStatement.get("pv").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
 				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
@@ -119,7 +122,7 @@ public class DbShyeld extends Db{
 	public void listerZonesConflits(){
 		System.out.println("Vous avez choisi d'inspecter les zones à conflits");
 		try {
-			try(ResultSet rs= zc.executeQuery()) {
+			try(ResultSet rs= tableStatement.get("zc").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
 				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
@@ -144,10 +147,10 @@ public class DbShyeld extends Db{
 	}
 	public void historiqueAgentEntreDates(int id_agent, java.sql.Date dateDebutSQL, java.sql.Date dateFinSQL) throws ParseException{
 		try {
-			hr.setInt(1, id_agent);
-			hr.setDate(2, dateDebutSQL);
-			hr.setDate(3, dateFinSQL);
-			try(ResultSet rs= hr.executeQuery()) {
+			tableStatement.get("hr").setInt(1, id_agent);
+			tableStatement.get("hr").setDate(2, dateDebutSQL);
+			tableStatement.get("hr").setDate(3, dateFinSQL);
+			try(ResultSet rs= tableStatement.get("hr").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
 				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
@@ -175,7 +178,7 @@ public class DbShyeld extends Db{
 		System.out.println("Vous avez choisi de voir le classement des victoires des super-héros");
 		
 		try {
-			try(ResultSet rs= cv.executeQuery()) {
+			try(ResultSet rs= tableStatement.get("cv").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
 				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
@@ -202,7 +205,7 @@ public class DbShyeld extends Db{
 		System.out.println("Vous avez choisi de voir le classement des victoires des super-héros");
 	
 		try {
-			try(ResultSet rs= cd.executeQuery()) {
+			try(ResultSet rs= tableStatement.get("cd").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
 				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";
@@ -228,7 +231,7 @@ public class DbShyeld extends Db{
 	public void classementReperages(){
 		System.out.println("Vous avez choisi de voir le classement des repérages des agents");
 		try {
-			try(ResultSet rs= cr.executeQuery()) {
+			try(ResultSet rs= tableStatement.get("cr").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
 				/*int nombreColonnes=rs.getMetaData().getColumnCount();
 				String row1 = "";

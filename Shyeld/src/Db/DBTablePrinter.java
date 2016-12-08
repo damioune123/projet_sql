@@ -468,8 +468,16 @@ public class DBTablePrinter {
 
                         // Use generic SQL type name instead of the actual value
                         // for column types BLOB, BINARY etc.
-                        value = "(" + c.getTypeName() + ")";
-
+                    		value = "(" + rs.getString(i + 1) + ")";
+                    		if(value.equals("(t)")){
+                    			value = "OUI";
+                    		} else if (value.equals("(f)")) {
+                    			value = "NON";
+                    		} else if (value.equals("(D)")) {
+                    			value = "Décé";
+                    		} else if (value.equals("(M)")) {
+                    			value = "Marvelle";
+                    		}
                     } else {
                         value = rs.getString(i+1) == null ? "NULL" : rs.getString(i+1);
                     }
@@ -495,6 +503,12 @@ public class DBTablePrinter {
                                 value = value.substring(0, maxStringColWidth - 3) + "...";
                             }
                             break;
+                        case CATEGORY_BOOLEAN:
+                        	if(value.equals("TRUE")){
+                        		value = "OUI";
+                        	} else {
+                        		value = "NON";
+                        	}
                     }
 
                     // Adjust the column width

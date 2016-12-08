@@ -140,20 +140,21 @@ public class ApplicationAgent {
 		String origine = scanner.next();
 		System.out.println("Entrer le type de super pouvoir qu'il possede : ");
 		String typePouvoir = scanner.next();
-		System.out.println("Entrer la puissance du super pouvoir : ");
-		int puissancePouvoir = scanner.nextInt();
-		System.out.println("Entrer la coordonnée X 1l'avez aperçu : ");
-		int coordX = scanner.nextInt();
-		System.out.println("Entrer à présent la coordonnée Y où vous l'avez aperçu : ");
-		int coordY = scanner.nextInt();
+		int puissancePouvoir = Util.checkSiEntre(Util.lireEntierAuClavier("Entrer la puissance du super pouvoir : "), 0, 10);
+		if(puissancePouvoir == -1)
+			return -1;
+		int coordX = Util.checkSiEntre(Util.lireEntierAuClavier("Entrer la coordonnée X où vous l'avez aperçu : "), 0, 100);
+		if(coordX == -1)
+			return -1;
+		int coordY = Util.checkSiEntre(Util.lireEntierAuClavier("Entrer à présent la coordonnée Y où vous l'avez aperçu : "), 0, 100);
+		if(coordY == -1)
+			return -1;
 		System.out.println("A quelle date l'avez vous aperçu : ");
 		String date = scanner.next();
 		System.out.println("Quel est son clan ? (M/D)");
 		char clan = scanner.next().charAt(0);
-		System.out.println("Combien de victoires a t'il eu ? ");
-		int victoires = scanner.nextInt();
-		System.out.println("Combien de défaites a t'il eu ?");
-		int defaites = scanner.nextInt();
+		int victoires = Util.lireEntierAuClavier("Combien de victoires a t'il eu ? ");
+		int defaites = Util.lireEntierAuClavier("Combien de défaites a t'il eu ?");
 		boolean estVivant;
 		char vivantChar;
 		do {
@@ -188,10 +189,12 @@ public class ApplicationAgent {
 		System.out.println("---------------------------------------------------");
 		System.out.println("Veuilliez tout d'abord indiquer la date du combat :(dd-mm-yyyy) ");
 		String date = scanner.next();
-		System.out.println("Quelle était la coordonnée X du combat : ");
-		int coordX = scanner.nextInt();
-		System.out.println("Quelle était la coordonnée Y du combat : ");
-		int coordY = scanner.nextInt();
+		int coordX = Util.checkSiEntre(Util.lireEntierAuClavier("Quelle était la coordonnée X du combat : "), 0, 100);
+		if(coordX == -1)
+			return;
+		int coordY = Util.checkSiEntre(Util.lireEntierAuClavier("Quelle était la coordonnée Y du combat : "), 0, 100);
+		if(coordY == -1)
+			return;
 		int idCombat = -1;
 		try {
 			System.out.println("Nous allons à présent passer à l'encodage des participations");
@@ -199,6 +202,8 @@ public class ApplicationAgent {
 			char boucle;
 			do {
 				Participation participation = ajouterParticipation(idCombat, i);
+				if(participation == null)
+					return;
 				participations.add(participation); 
 				i++;
 				System.out.println("Voulez vous ajouter une autre participation ? (O/N)");
@@ -208,9 +213,9 @@ public class ApplicationAgent {
 		} catch (ParseException e) {
 			System.out.println("Erreur lors de l'encodage de la date");
 		}
-		if(idCombat < 0){
+		if(idCombat == -1){
 			System.out.println("Erreur lors de l'ajout du combat");
-		} else {
+		} else if (idCombat != -2) {
 			System.out.println("Le combat a été ajouté sous l'id : " + idCombat);
 		}
 		
@@ -223,6 +228,12 @@ public class ApplicationAgent {
 		System.out.println("Commencer par entrer le surnom du superhéros : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
+		if(idSuperHero == -1){
+			System.out.println("Ce héros n'est malheureusement pas connus de nos systèmes, le processus d'inscription va commencer");
+			idSuperHero = creationSuperHero(nomSuperHero);
+		}
+		if(idSuperHero == -1)
+			return null;
 		System.out.println("Comment s'est termine le combat pour cette personne (G/P/N) ? ");
 		char issue = scanner.next().charAt(0); 
 		return new Participation(idSuperHero, idCombat, issue, numeroLigne);
@@ -235,10 +246,14 @@ public class ApplicationAgent {
 		System.out.println("Commencer par entrer le nom du superhéros que vous avez aperçu : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
-		System.out.println("Veuilliez entrer la coordonnée X : ");
-		int coordX = scanner.nextInt();
-		System.out.println("Veuilliez entrer la coordonnée Y : ");
-		int coordY = scanner.nextInt();
+		if(idSuperHero == -1){
+			System.out.println("Ce héros n'est malheureusement pas connus de nos systèmes, le processus d'inscription va commencer");
+			idSuperHero = creationSuperHero(nomSuperHero);
+		}
+		if(idSuperHero == -1)
+			return;
+		int coordX = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée X où vous avez aperçu le superhéro: "), 0, 100);
+		int coordY = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée Y où vous avez aperçu le superhéro: "), 0, 100);
 		System.out.println("A quelle date l'avez vous vu ? (dd-mm-yyyy)");
 		String date = scanner.next();
 		int idReperage = -1;

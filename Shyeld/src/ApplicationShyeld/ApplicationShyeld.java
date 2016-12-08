@@ -95,7 +95,7 @@ public class ApplicationShyeld {
 		System.out.println("Vous avez choisi de supprimer un agent, voici une liste complète de ceux-ci :");
 		accesBDDN.affichageAllAgents();
 		System.out.println("Rentrez l'id de l'agent :");
-		int id_agent= scanner.nextInt();
+		int id_agent= Util.lireEntierAuClavier("Rentrez l'id de l'agent :");
 		accesBDDN.suppressionAgent(id_agent);
 	
 	}
@@ -105,25 +105,15 @@ public class ApplicationShyeld {
 		System.out.println("Veuillez rentrer l'id de l'agent dont vous souhaitez voir l'historique");
 		accesBDDN.affichageAllAgents();
 		System.out.println("Rentrez l'id de l'agent :");
-		int id_agent = scanner.nextInt();
+		int id_agent = Util.lireEntierAuClavier("Rentrez l'id de l'agent :");
 		System.out.println("Rentrez la date de début au dormat dd-MM-YYYY");
 		String dateDebutString = scanner.next();
 		java.sql.Date dateDebutSQL = null;
-		try {
-			dateDebutSQL = Util.formaterDate(dateDebutString);
-		} catch (ParseException e) {
-			System.out.println("Votre date est incorrecte !");
-			menuPrincipal();
-		}
+		dateDebutSQL = Util.formaterDate(dateDebutString);
 		System.out.println("Rentrez la date de fin au dormat dd-MM-YYYY");
 		String dateFinString = scanner.next();
 		java.sql.Date dateFinSQL = null;
-		try {
-			dateFinSQL = Util.formaterDate(dateFinString);
-		} catch (ParseException e) {
-			System.out.println("Votre date est incorrecte !");
-			menuPrincipal();
-		}
+		dateFinSQL = Util.formaterDate(dateFinString);
 		try {
 			accesBDDN.historiqueAgentEntreDates(id_agent, dateDebutSQL, dateFinSQL);
 		} catch (ParseException e) {

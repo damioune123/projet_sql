@@ -11,8 +11,8 @@ public class Db {
 
 	protected Connection connexionDb;
 	
-	public static String IPHOST_PORT ="172.24.2.6";//a changer
-	public static String nomBDDN ="dbdmeur15"; //a changer
+	public static String IPHOST_PORT ="localhost:5433";//172.24.2.6
+	public static String nomBDDN ="shyeld"; //dbdmeur15
 	private HashMap<String,PreparedStatement> tableStatement = new HashMap<String,PreparedStatement>();
 	
 	protected Db(String userDb, String passwordDb) {

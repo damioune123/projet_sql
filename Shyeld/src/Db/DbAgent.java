@@ -12,8 +12,8 @@ public class DbAgent extends Db{
 	
 	private HashMap<String,PreparedStatement> tableStatement;
 	
-	private static String userDb="csacre15";
-	private static String passwordDb="8AWU2aF";
+	private static String userDb="postgres"; //csacre15
+	private static String passwordDb="Tiffy0603"; //8AWU2aF
 	public DbAgent(){
 		super(userDb, passwordDb);
 		try {
@@ -62,7 +62,14 @@ public class DbAgent extends Db{
 				connexionDb.commit();
 			} catch (SQLException se) {
 				System.out.println("Le combat n'a pas pu être ajouté");
-				id = -1;
+				if(!participations.isEmpty()){
+					System.out.println("Les partcipations vont tout de même être ajoutée en tant que repérages");
+					for(Participation participation : participations){
+						ajouterReperage(new Reperage(combat.getAgent(), participation.getSuperhero(), combat.getCoordCombatX(), combat.getCoordCombatY(), combat.getDateCombat()));
+					}
+					return -2;
+				}
+				return -1;
 			}
 		} catch (SQLException se) {
 			try {
@@ -113,6 +120,7 @@ public class DbAgent extends Db{
 			}
 		} catch(SQLException se) {
 			System.out.println("Le repérage n'a pas pû être ajouté");
+			se.printStackTrace();
 			return -1;
 		}
 	}
