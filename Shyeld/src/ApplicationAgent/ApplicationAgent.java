@@ -4,8 +4,6 @@ import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
-import java.util.Scanner;
-
 import Db.SuperHero;
 import Db.Util;
 import Db.Combat;
@@ -116,13 +114,13 @@ public class ApplicationAgent {
 	public void informationSuperHero(){
 		System.out.println("Veuilliez entrer le nom de votre superhero : ");
 		String nom = scanner.next();
-		ArrayList<SuperHero> listeSuperHero = connexionDb.informationSuperHero(nom);
-		if(!listeSuperHero.isEmpty()) {
-			for(SuperHero superHero: listeSuperHero) {
+		SuperHero superHero = connexionDb.informationSuperHero(nom);
+		if(superHero != null) {
+			/*for(SuperHero superHero: listeSuperHero) {
 				System.out.println(superHero.toString());
-			}
+			}*/
 		} else {
-			System.out.println("Aucun Héros ne correspond au nom entré, le processus d'inscription de l'hï¿½ros est lancï¿½ : ");
+			System.out.println("Aucun Héros ne correspond au nom entré, le processus d'inscription est lancé : ");
 			creationSuperHero(nom);
 		}
 	}
@@ -257,19 +255,19 @@ public class ApplicationAgent {
 	}
 
 	public int checkSiPresent(String nomSuperHero) {
-		ArrayList<SuperHero> superheros = connexionDb.informationSuperHero(nomSuperHero);
+		SuperHero superhero = connexionDb.informationSuperHero(nomSuperHero);
 		int idSuperHero = -1;
-		for(SuperHero superhero : superheros) {
+		if(superhero != null) {
 			System.out.println("S'agit t'il de celui-ci ? (O/N)");
-			System.out.println(superhero.toString());
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){
 				idSuperHero = superhero.getIdSuperhero();
-				break;
-			} 
-		}
-		if(idSuperHero < 0){
-			idSuperHero = creationSuperHero(null);
+			} else {
+				idSuperHero = -2;
+			}
+			if(idSuperHero < 0){
+				idSuperHero = creationSuperHero(null);
+			}
 		}
 		return idSuperHero;
 	}
@@ -281,8 +279,14 @@ public class ApplicationAgent {
 		System.out.println("Veuilliez entrer le nom du superhéro : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
-		System.out.println("Nous allons inhumer ce superhéro ...");
-		connexionDb.supprimerSuperHero(idSuperHero);
+		if(idSuperHero < -1) {
+			System.out.println("Le héros à miraculeusement survécus");
+		} else if (idSuperHero < 0) {
+			System.out.println("Aucun héro présent sous ce nom là");
+		}else {
+			System.out.println("Nous allons inhumer ce superhéro ...");
+			connexionDb.supprimerSuperHero(idSuperHero);
+		}
 	}
 }
 

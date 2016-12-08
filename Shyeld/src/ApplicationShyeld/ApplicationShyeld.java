@@ -1,6 +1,5 @@
 package ApplicationShyeld;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 import Db.DbShyeld;
@@ -125,19 +124,25 @@ public class ApplicationShyeld {
 			System.out.println("Votre date est incorrecte !");
 			menuPrincipal();
 		}
-		accesBDDN.historiqueAgentEntreDates(id_agent, dateDebutSQL, dateFinSQL);
+		try {
+			accesBDDN.historiqueAgentEntreDates(id_agent, dateDebutSQL, dateFinSQL);
+		} catch (ParseException e) {
+			System.out.println("Erreur lors de l'encodage de la date");
+		}
 
 	}
+	
 	private int checkSiPresent(String nomSuperHero) {
-		ArrayList<SuperHero> superheros = accesBDDN.informationSuperHero(nomSuperHero);
+		SuperHero superhero = accesBDDN.informationSuperHero(nomSuperHero);
 		int idSuperHero = -1;
-		for(SuperHero superhero : superheros) {
+		if(superhero != null) {
 			System.out.println("S'agit t'il de celui-ci ? (O/N)");
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){
 				idSuperHero = superhero.getIdSuperhero();
-				break;
-			} 
+			} else {
+				idSuperHero = -2;
+			}
 		}
 		return idSuperHero;
 	}
@@ -150,8 +155,15 @@ public class ApplicationShyeld {
 		System.out.println("Veuilliez entrer le nom du superhero : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
-		System.out.println("Nous allons proc�d� � l'inhumation de ce superhero ...");
-		accesBDDN.supprimerSuperHero(idSuperHero);
+		if(idSuperHero < -1) {
+			System.out.println("Le héros à miraculeusement survécus");
+		} else if (idSuperHero < 0) {
+			System.out.println("Aucun héro présent sous ce nom là");
+		}
+		else {
+			System.out.println("Nous allons inhumer ce superhéro ...");
+			accesBDDN.supprimerSuperHero(idSuperHero);
+		}
 	}
 
 
