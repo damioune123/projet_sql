@@ -52,6 +52,7 @@ public class ApplicationAgent {
 					signalerDecesSH();
 					break;
 				case 5:
+					System.out.println("Au plaisir de vous revoir cher membre du SHYELD");
 					System.exit(0);
 				default :	
 					System.out.println("Mauvais chiffre entré, faites attention la prochaine fois");
@@ -120,8 +121,9 @@ public class ApplicationAgent {
 				System.out.println(superHero.toString());
 			}*/
 		} else {
-			System.out.println("Aucun Héros ne correspond au nom entré, le processus d'inscription est lancé : ");
-			creationSuperHero(nom);
+			System.out.println("Aucun Héros ne correspond au nom entré, voulez vous lancer le processus d'inscription ? (O/N)");
+			if(Util.lireCharOouN(scanner.next().charAt(0)))
+				creationSuperHero(nom);
 		}
 	}
 	
@@ -150,7 +152,7 @@ public class ApplicationAgent {
 		if(coordY == -1)
 			return -1;
 		System.out.println("A quelle date l'avez vous aperçu : ");
-		String date = scanner.next();
+		java.sql.Date date = Util.formaterDate(scanner.next());
 		System.out.println("Quel est son clan ? (M/D)");
 		char clan = scanner.next().charAt(0);
 		int victoires = Util.lireEntierAuClavier("Combien de victoires a t'il eu ? ");
@@ -168,12 +170,8 @@ public class ApplicationAgent {
 			}
 		} while (vivantChar != 'o' && vivantChar != 'O' && vivantChar != 'n' && vivantChar != 'N');
 		int idSuperHero = - 1;
-		try {
-			idSuperHero = connexionDb.ajouterSuperHero(new SuperHero(nom, prenom, nomSuperHero, adresse, origine, typePouvoir,
-					puissancePouvoir, coordX, coordY, date, clan, victoires, defaites, estVivant));
-		} catch (ParseException e) {
-			System.out.println("Erreur lors de l'encodage de la date");
-		}
+		idSuperHero = connexionDb.ajouterSuperHero(new SuperHero(nom, prenom, nomSuperHero, adresse, origine, typePouvoir,
+				puissancePouvoir, coordX, coordY, date, clan, victoires, defaites, estVivant));
 		if(idSuperHero < 0){
 			System.out.println("L'ajout n'a pas pu être effectué");
 		} else {
@@ -188,7 +186,7 @@ public class ApplicationAgent {
 		System.out.println("Bienvenue dans l'encodage d'un rapport de combat");
 		System.out.println("---------------------------------------------------");
 		System.out.println("Veuilliez tout d'abord indiquer la date du combat :(dd-mm-yyyy) ");
-		String date = scanner.next();
+		java.sql.Date date = Util.formaterDate(scanner.next());
 		int coordX = Util.checkSiEntre(Util.lireEntierAuClavier("Quelle était la coordonnée X du combat : "), 0, 100);
 		if(coordX == -1)
 			return;
@@ -196,23 +194,19 @@ public class ApplicationAgent {
 		if(coordY == -1)
 			return;
 		int idCombat = -1;
-		try {
-			System.out.println("Nous allons à présent passer à l'encodage des participations");
-			int i = 0;
-			char boucle;
-			do {
-				Participation participation = ajouterParticipation(idCombat, i);
-				if(participation == null)
-					return;
-				participations.add(participation); 
-				i++;
-				System.out.println("Voulez vous ajouter une autre participation ? (O/N)");
-				boucle = scanner.next().charAt(0);
-			} while (Util.lireCharOouN(boucle));
-			idCombat = connexionDb.ajouterCombat(new Combat(date, coordX, coordY, idAgent, 0, 0, 0, 0), participations);
-		} catch (ParseException e) {
-			System.out.println("Erreur lors de l'encodage de la date");
-		}
+		System.out.println("Nous allons à présent passer à l'encodage des participations");
+		int i = 0;
+		char boucle;
+		do {
+			Participation participation = ajouterParticipation(idCombat, i);
+			if(participation == null)
+				return;
+			participations.add(participation); 
+			i++;
+			System.out.println("Voulez vous ajouter une autre participation ? (O/N)");
+			boucle = scanner.next().charAt(0);
+		} while (Util.lireCharOouN(boucle));
+		idCombat = connexionDb.ajouterCombat(new Combat(date, coordX, coordY, idAgent, 0, 0, 0, 0), participations);
 		if(idCombat == -1){
 			System.out.println("Erreur lors de l'ajout du combat");
 		} else if (idCombat != -2) {
@@ -255,17 +249,13 @@ public class ApplicationAgent {
 		int coordX = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée X où vous avez aperçu le superhéro: "), 0, 100);
 		int coordY = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée Y où vous avez aperçu le superhéro: "), 0, 100);
 		System.out.println("A quelle date l'avez vous vu ? (dd-mm-yyyy)");
-		String date = scanner.next();
+		java.sql.Date date = Util.formaterDate(scanner.next());
 		int idReperage = -1;
-		try {
-			idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, coordX, coordY, date));
-		} catch (ParseException e) {
-			System.out.println("Erreur lors de l'encodage de la date");
-		}
+		idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, coordX, coordY, date));
 		if(idReperage < 0) {
 			System.out.println("Erreur lors de l'ajout du repérage");
 		} else {
-			System.out.println("Le repérage a bien été ajouté");
+			System.out.println("Le repérage a été ajouté sous l'id : " + idReperage);
 		}
 	}
 

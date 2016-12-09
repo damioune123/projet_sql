@@ -59,7 +59,7 @@ public class Util {
 	public static int checkSiEntre(int entier, int entierMin, int entierMax){
 		while(entier < entierMin || entier > entierMax) {
 			entier = Util.lireEntierAuClavier("L'entier doit être compris entre " + entierMin + " et " + entierMax);
-			System.out.println("Voulez vous continuer ? (O/N)");
+			System.out.println("Voulez vous réessayer ? (O/N)");
 			char carac = scanner.next().charAt(0);
 			if(!Util.lireCharOouN(carac))
 				return -1;

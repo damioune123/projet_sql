@@ -36,13 +36,13 @@ public class DbAgent extends Db{
 	}
 	
 	
-	public int ajouterCombat(Combat combat, ArrayList<Participation> participations) throws ParseException {
+	public int ajouterCombat(Combat combat, ArrayList<Participation> participations) {
 		int id = -1;
 		try {
 			connexionDb.setAutoCommit(false);
 			System.out.println(combat.getAgent());
 			try {
-				tableStatement.get("ajoutComb").setDate(1, Util.formaterDate(combat.getDateCombat()));
+				tableStatement.get("ajoutComb").setDate(1, combat.getDateCombat());
 				tableStatement.get("ajoutComb").setInt(2, combat.getCoordCombatX());
 				tableStatement.get("ajoutComb").setInt(3, combat.getCoordCombatY());
 				tableStatement.get("ajoutComb").setInt(4, combat.getAgent());
@@ -63,19 +63,19 @@ public class DbAgent extends Db{
 			} catch (SQLException se) {
 				System.out.println("Le combat n'a pas pu être ajouté");
 				if(!participations.isEmpty()){
-					System.out.println("Les partcipations vont tout de même être ajoutée en tant que repérages");
+					System.out.println("Les partcipations ont tout de même été rajoutée en tant que repérages");
 					for(Participation participation : participations){
 						ajouterReperage(new Reperage(combat.getAgent(), participation.getSuperhero(), combat.getCoordCombatX(), combat.getCoordCombatY(), combat.getDateCombat()));
 					}
-					return -2;
+					id = -2;
 				}
-				return -1;
 			}
 		} catch (SQLException se) {
 			try {
 				connexionDb.rollback();
 			} catch (SQLException e) {
 				System.out.println("Le retour en arrière n'a pas pû être effectué");
+				id = -1;
 			}
 		} finally {
 			try {
@@ -83,9 +83,9 @@ public class DbAgent extends Db{
 				return id;
 			} catch (SQLException e) {
 				System.out.println("La fermeture de la connexion n'a pas pû être effectué");
+				return -1;
 			}
 		}
-		return id;
 	}
 
 	public int ajouterParticipation(Participation participation) {
@@ -105,13 +105,13 @@ public class DbAgent extends Db{
 		}
 	}
 
-	public int ajouterReperage(Reperage reperage) throws ParseException {
+	public int ajouterReperage(Reperage reperage) {
 		try {
 			tableStatement.get("ajoutRep").setInt(1, reperage.getAgent());
 			tableStatement.get("ajoutRep").setInt(2, reperage.getSuperhero());
 			tableStatement.get("ajoutRep").setInt(3, reperage.getCoordX());
 			tableStatement.get("ajoutRep").setInt(4, reperage.getCoordY());
-			tableStatement.get("ajoutRep").setDate(5, Util.formaterDate(reperage.getDate()));
+			tableStatement.get("ajoutRep").setDate(5, reperage.getDate());
 			try(ResultSet rs = tableStatement.get("ajoutRep").executeQuery()) {
 				while(rs.next()) {
 					return Integer.valueOf(rs.getString(1));
@@ -154,7 +154,7 @@ public class DbAgent extends Db{
 			return -1;
 		}
 	}
-	public int ajouterSuperHero(SuperHero superhero) throws ParseException {
+	public int ajouterSuperHero(SuperHero superhero) {
 		try {
 			tableStatement.get("ajoutSH").setString(1, superhero.getNomCivil());
 			tableStatement.get("ajoutSH").setString(2, superhero.getPrenomCivil());
@@ -165,7 +165,7 @@ public class DbAgent extends Db{
 			tableStatement.get("ajoutSH").setInt(7, superhero.getPuissanceSuperPouvoir());
 			tableStatement.get("ajoutSH").setInt(8, superhero.getDerniereCoordonneeX());
 			tableStatement.get("ajoutSH").setInt(9, superhero.getDerniereCoordonneeY());
-			tableStatement.get("ajoutSH").setDate(10, Util.formaterDate(superhero.getDateDerniereApparition()));
+			tableStatement.get("ajoutSH").setDate(10, superhero.getDateDerniereApparition());
 			tableStatement.get("ajoutSH").setString(11, String.valueOf(superhero.getClan())); //A REVISER
 			tableStatement.get("ajoutSH").setInt(12, superhero.getNombreVictoires());
 			tableStatement.get("ajoutSH").setInt(13, superhero.getNombreDefaites());

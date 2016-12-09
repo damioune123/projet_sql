@@ -7,9 +7,9 @@ public class Reperage {
 	private int superhero;
 	private int coordX;
 	private int coordY;
-	private String date;
+	private java.sql.Date date;
 	
-	public Reperage(int idReperage, int agent, int superhero, int coordX, int coordY, String date) {
+	public Reperage(int idReperage, int agent, int superhero, int coordX, int coordY, java.sql.Date date) {
 		super();
 		this.idReperage = idReperage;
 		this.agent = agent;
@@ -20,7 +20,7 @@ public class Reperage {
 	}
 	
 
-	public Reperage(int agent, int superhero, int coordX, int coordY, String date) {
+	public Reperage(int agent, int superhero, int coordX, int coordY, java.sql.Date date) {
 		super();
 		this.agent = agent;
 		this.superhero = superhero;
@@ -51,12 +51,7 @@ public class Reperage {
 		return coordY;
 	}
 
-	public String getDate() {
+	public java.sql.Date getDate() {
 		return date;
-	}
-	
-	public String insertIntoReperage(){
-		return "INSERT INTO shyeld.reperages VALUES(DEFAULT," + this.agent + "," + this.superhero + ","
-	+ this.coordX + "," + this.coordY + ",'" + this.date + "');\n";
 	}
 }

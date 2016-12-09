@@ -153,7 +153,8 @@ FROM shyeld.superheros sh
 WHERE (date_part('year', age(sh.date_derniere_apparition)) >= 1
 	OR date_part('month', age(sh.date_derniere_apparition)) >= 1
 	OR date_part('day', age(sh.date_derniere_apparition)) > 15)
-	AND sh.est_vivant = TRUE;
+	AND sh.est_vivant = TRUE
+ORDER BY sh.nom_superhero;
 
 -- PARTIE 4 DELETE d'un super-héros
 
@@ -184,7 +185,8 @@ AND ((s.derniere_coordonneeX = s1.derniere_coordonneeX AND s.derniere_coordonnee
 	OR (s.derniere_coordonneeX = s1.derniere_coordonneeX AND s.derniere_coordonneeY = s1.derniere_coordonneeY + 1)
 	OR (s.derniere_coordonneeX = s1.derniere_coordonneeX AND s.derniere_coordonneeY = s1.derniere_coordonneeY - 1))
 AND EXTRACT(DAY FROM NOW() - s.date_derniere_apparition) <= 10
-AND EXTRACT(DAY FROM NOW() - s1.date_derniere_apparition) <= 10;
+AND EXTRACT(DAY FROM NOW() - s1.date_derniere_apparition) <= 10
+ORDER BY s.derniere_coordonneeX;
 
 -- PARTIE 6 Historique d'un agent
 CREATE OR REPLACE FUNCTION shyeld.historiqueReperagesAgent(INTEGER, TIMESTAMP, TIMESTAMP) RETURNS SETOF

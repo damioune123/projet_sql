@@ -12,7 +12,7 @@ public class SuperHero {
 	private int puissanceSuperPouvoir;
 	private int derniereCoordonneeX;
 	private int derniereCoordonneeY;
-	private String dateDerniereApparition;
+	private java.sql.Date dateDerniereApparition;
 	private char clan;
 	private int nombreVictoires;
 	private int nombreDefaites;
@@ -21,7 +21,7 @@ public class SuperHero {
 	
 	public SuperHero(int idSuperhero, String nomCivil, String prenomCivil, String nomSuperhero, String adressePrivee,
 			String origine, String typeSuperPouvoir, int puissanceSuperPouvoir, int derniereCoordonneeX,
-			int derniereCoordonneeY, String dateDerniereApparition, char clan, int nombreVictoires, int nombreDefaites,
+			int derniereCoordonneeY, java.sql.Date dateDerniereApparition, char clan, int nombreVictoires, int nombreDefaites,
 			boolean estVivant) {
 		super();
 		this.idSuperhero = idSuperhero;
@@ -45,7 +45,7 @@ public class SuperHero {
 
 	public SuperHero(String nomCivil, String prenomCivil, String nomSuperhero, String adressePrivee, String origine,
 			String typeSuperPouvoir, int puissanceSuperPouvoir, int derniereCoordonneeX, int derniereCoordonneeY,
-			String dateDerniereApparition, char clan, int nombreVictoires, int nombreDefaites, boolean estVivant) {
+			java.sql.Date dateDerniereApparition, char clan, int nombreVictoires, int nombreDefaites, boolean estVivant) {
 		super();
 		this.nomCivil = nomCivil;
 		this.prenomCivil = prenomCivil;
@@ -105,7 +105,7 @@ public class SuperHero {
 		return derniereCoordonneeY;
 	}
 
-	public String getDateDerniereApparition() {
+	public java.sql.Date getDateDerniereApparition() {
 		return dateDerniereApparition;
 	}
 
@@ -123,22 +123,5 @@ public class SuperHero {
 
 	public boolean isEstVivant() {
 		return estVivant;
-	}
-	
-	public String toString() {
-		return 	"\nHeros N°" + this.idSuperhero +
-				"\nNom : " + this.nomCivil +
-				"\nPrenom : " + this.prenomCivil +
-				"\nNomSuperHero : " + this.nomSuperhero +
-				"\nAdresse : " + this.adressePrivee +
-				"\nOrigine : " + this.origine +
-				"\nType super pouvoir : " + this.typeSuperPouvoir +
-				"\nPuissance super pouvoir : " + this.puissanceSuperPouvoir +
-				"\nCoordonnées : (" + this.derniereCoordonneeX + ", "+ this.derniereCoordonneeY + ")" + 
-				"\nDate Apparition : " + this.dateDerniereApparition +
-				"\nClan : " + this.clan +
-				"\nNombre Victoires : " + this.nombreVictoires +
-				"\nNombre Défaites : " + this.nombreDefaites +
-				"\nEst Vivant : " + this.estVivant;
 	}
 }

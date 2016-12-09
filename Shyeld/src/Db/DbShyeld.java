@@ -63,10 +63,10 @@ public class DbShyeld extends Db{
 					DBTablePrinter.printResultSet(rs);
 					rs.beforeFirst();
 				}
-				while(rs.next()) {
+				/*while(rs.next()) {
 					System.out.println("id agent :"+rs.getString("id_agent")+"  nom agent :"+rs.getString("nom")+"  prenom agent "
 							+rs.getString("prenom")+"  identifiant :"+rs.getString("identifiant") );
-				}	
+				}*/	
 			}
 		} catch (SQLException se) {
 			System.out.println(se.getMessage());

@@ -2,7 +2,7 @@ package Db;
 
 public class Combat {
 	private int idCombat;
-	private String dateCombat;
+	private java.sql.Date dateCombat;
 	private int coordCombatX;
 	private int coordCombatY;
 	private int agent; //REFERENCIE AGENT
@@ -11,7 +11,7 @@ public class Combat {
 	private int nombrePerdants;
 	private int nombreNeutres;
 	
-	public Combat(int idCombat, String dateCombat, int coordCombatX, int coordCombatY, int agent,
+	public Combat(int idCombat, java.sql.Date dateCombat, int coordCombatX, int coordCombatY, int agent,
 			int nombreParticipants, int nombreGagnants, int nombrePerdants, int nombreNeutres) {
 		super();
 		this.idCombat = idCombat;
@@ -26,7 +26,7 @@ public class Combat {
 	}
 	
 
-	public Combat(String dateCombat, int coordCombatX, int coordCombatY, int agent, int nombreParticipants,
+	public Combat(java.sql.Date dateCombat, int coordCombatX, int coordCombatY, int agent, int nombreParticipants,
 			int nombreGagnants, int nombrePerdants, int nombreNeutres) {
 		super();
 		this.dateCombat = dateCombat;
@@ -45,7 +45,7 @@ public class Combat {
 		return idCombat;
 	}
 
-	public String getDateCombat() {
+	public java.sql.Date getDateCombat() {
 		return dateCombat;
 	}
 
@@ -75,11 +75,5 @@ public class Combat {
 
 	public int getNombreNeutres() {
 		return nombreNeutres;
-	}
-	
-	public String insertIntoCombats(){
-		return "INSERT INTO shyeld.combats VALUES(DEFAULT,'" + this.dateCombat + "'," + this.coordCombatX + ","
-	+ this.coordCombatY + "," + this.agent + "," + this.nombreParticipants + "," + this.nombreGagnants + ","
-				+ this.nombrePerdants + "," +this.nombreNeutres + "');\n";
 	}
 }

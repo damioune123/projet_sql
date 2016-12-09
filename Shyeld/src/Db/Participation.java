@@ -37,8 +37,4 @@ public class Participation {
 		return this.numeroLigne;
 	}
 	
-	public String insertIntoParticipation(){
-		return "INSERT INTO shyeld.participations VALUES(" + this.superhero + "," + this.combat + ",'" + this.issue + "'," + this.numeroLigne + ");\n";
-	}
-	
 }
