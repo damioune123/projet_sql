@@ -7,8 +7,8 @@ import java.text.ParseException;
 import java.util.HashMap;
 
 public class DbShyeld extends Db{
-	private static String userDb="dmeur15";
-	private static String passwordDb="XcU46ay";
+	private static String userDb="postgres"; //dmeur15
+	private static String passwordDb="Tiffy0603"; //XcU46ay
 	private HashMap<String,PreparedStatement> tableStatement;
 	public DbShyeld(){
 		super(userDb, passwordDb);
@@ -22,7 +22,7 @@ public class DbShyeld extends Db{
 			tableStatement.put("sa", sa);
 			PreparedStatement pv = this.connexionDb.prepareStatement("SELECT * FROM shyeld.perte_visibilite;");
 			tableStatement.put("pv", pv);
-			PreparedStatement zc = this.connexionDb.prepareStatement("SELECT DISTINCT * FROM shyeld.zone_conflit();");
+			PreparedStatement zc = this.connexionDb.prepareStatement("SELECT DISTINCT * FROM shyeld.zone_conflit;");
 			tableStatement.put("zc", zc);
 			PreparedStatement hr =this.connexionDb.prepareStatement("SELECT * FROM shyeld.historiqueReperagesAgent(?, ?, ?);");
 			tableStatement.put("hr", hr);
