@@ -21,8 +21,8 @@ public class Util {
 			} else if (carac == 'n' || carac == 'N'){
 				return false;
 			}
-		}while(carac != 'o' && carac != 'O' && carac != 'n' && carac != 'N');
-		return true; //Uniquement pour la compilation
+			carac = scanner.next().charAt(0);
+		}while(true);
 	}
 	
 	public static String encryptionBcryptInscription(String mdpClair){

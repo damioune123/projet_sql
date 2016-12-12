@@ -30,6 +30,8 @@ public class DbAgent extends Db{
 			tableStatement.put("getAg", getAg);
 			PreparedStatement ajoutSH = this.connexionDb.prepareStatement("SELECT * FROM shyeld.creation_superhero(?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
 			tableStatement.put("ajoutSH", ajoutSH);
+			PreparedStatement getS = this.connexionDb.prepareStatement("SELECT * FROM shyeld.getSuperHero(?)");
+			tableStatement.put("getS", getS);
 		} catch (SQLException se){
 			se.printStackTrace();
 		}
@@ -100,7 +102,8 @@ public class DbAgent extends Db{
 				return -1;
 			}
 		} catch (SQLException se) {
-			System.out.println("La participation n'a pas p� �tre ajout�e");
+			se.printStackTrace();
+			System.out.println("La participation n'a pas pû être ajoutée");
 			return -1;
 		}
 	}
@@ -119,7 +122,7 @@ public class DbAgent extends Db{
 				return -1;
 			}
 		} catch(SQLException se) {
-			System.out.println("Le rep�rage n'a pas p� �tre ajout�");
+			System.out.println("Le repérage n'a pas pû être ajouté");
 			se.printStackTrace();
 			return -1;
 		}
@@ -166,7 +169,7 @@ public class DbAgent extends Db{
 			tableStatement.get("ajoutSH").setInt(8, superhero.getDerniereCoordonneeX());
 			tableStatement.get("ajoutSH").setInt(9, superhero.getDerniereCoordonneeY());
 			tableStatement.get("ajoutSH").setDate(10, superhero.getDateDerniereApparition());
-			tableStatement.get("ajoutSH").setString(11, String.valueOf(superhero.getClan())); //A REVISER
+			tableStatement.get("ajoutSH").setString(11, String.valueOf(superhero.getClan()));
 			tableStatement.get("ajoutSH").setInt(12, superhero.getNombreVictoires());
 			tableStatement.get("ajoutSH").setInt(13, superhero.getNombreDefaites());
 			tableStatement.get("ajoutSH").setBoolean(14, superhero.isEstVivant());

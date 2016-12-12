@@ -240,18 +240,23 @@ public class ApplicationAgent {
 		System.out.println("Commencer par entrer le nom du superhéros que vous avez aperçu : ");
 		String nomSuperHero = scanner.next();
 		int idSuperHero = checkSiPresent(nomSuperHero);
+		SuperHero superhero = null;
 		if(idSuperHero == -1){
 			System.out.println("Ce héros n'est malheureusement pas connus de nos systèmes, le processus d'inscription va commencer");
 			idSuperHero = creationSuperHero(nomSuperHero);
+			superhero = connexionDb.informationSuperHero(nomSuperHero);
 		}
 		if(idSuperHero == -1)
 			return;
-		int coordX = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée X où vous avez aperçu le superhéro: "), 0, 100);
-		int coordY = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée Y où vous avez aperçu le superhéro: "), 0, 100);
-		System.out.println("A quelle date l'avez vous vu ? (dd-mm-yyyy)");
-		java.sql.Date date = Util.formaterDate(scanner.next());
 		int idReperage = -1;
-		idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, coordX, coordY, date));
+		if(superhero == null) {
+			int coordX = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée X où vous avez aperçu le superhéro: "), 0, 100);
+			int coordY = Util.checkSiEntre(Util.lireEntierAuClavier("Veuilliez entrer la coordonnée Y où vous avez aperçu le superhéro: "), 0, 100);
+			System.out.println("A quelle date l'avez vous vu ? (dd-mm-yyyy)");
+			java.sql.Date date = Util.formaterDate(scanner.next());
+			idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, coordX, coordY, date));
+		}
+		idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, superhero.getDerniereCoordonneeX(), superhero.getDerniereCoordonneeY(), superhero.getDateDerniereApparition()));
 		if(idReperage < 0) {
 			System.out.println("Erreur lors de l'ajout du repérage");
 		} else {
@@ -266,15 +271,13 @@ public class ApplicationAgent {
 			System.out.println("S'agit t'il de celui-ci ? (O/N)");
 			char choix = scanner.next().charAt(0);
 			if(Util.lireCharOouN(choix)){
-				idSuperHero = superhero.getIdSuperhero();
+				return superhero.getIdSuperhero();
 			} else {
-				idSuperHero = -2;
+				return -2;
 			}
-			if(idSuperHero < 0){
-				idSuperHero = creationSuperHero(null);
-			}
+		} else {
+			return idSuperHero;
 		}
-		return idSuperHero;
 	}
 	
 	public void signalerDecesSH(){

@@ -378,7 +378,6 @@ BEGIN
 	IF NOT EXISTS (SELECT a.* FROM shyeld.agents a WHERE a.id_agent = _agent AND a.est_actif = TRUE) THEN 
 		RAISE foreign_key_violation;
 	END IF;
-	UPDATE shyeld.agents SET nbre_rapport = nbre_rapport +1 WHERE id_agent = _agent;
 	INSERT INTO shyeld.combats VALUES (DEFAULT, _date, _coordX, _coordY, _agent, _nombreParticipants,
 	 _nombreGagnants, _nombrePerdants, _nombreNeutres) RETURNING id_combat INTO _id;
 	RETURN _id;
@@ -454,6 +453,7 @@ BEGIN
 	END IF;
 	FOR _combat IN SELECT c.*  FROM shyeld.combats c WHERE  c.id_combat = NEW.combat LOOP
 		PERFORM shyeld.creation_reperage(_combat.agent, NEW.superhero, _combat.coord_combatX, _combat.coord_combatY ,_combat.date_combat);
+		UPDATE shyeld.agents a SET nbre_rapport = nbre_rapport + 1 WHERE _combat.agent = a.id_agent ; 
 	END LOOP;
 	RETURN NEW;
 		
@@ -529,15 +529,13 @@ EXECUTE PROCEDURE shyeld.verificationAuthenticiteCombat();
 
 
 /********************************************************* FONCTIONS ET VUES - DIVERS - HORS ENONCE **************************************************/
-
 --affichage de tous les agents actifs
 DROP VIEW IF EXISTS shyeld.affichageAgents;
 
 CREATE VIEW shyeld.affichageAgents AS
 
 SELECT a.*
-FROM shyeld.agents a
-WHERE a.est_actif = 'TRUE';
+FROM shyeld.agents a;
 
 --affichage de tous les combats sans les participations
 DROP VIEW IF EXISTS shyeld.affichageCombats;
@@ -588,7 +586,8 @@ TO csacre15;
 
 GRANT UPDATE ON
 shyeld.superheros,
-shyeld.combats
+shyeld.combats,
+shyeld.agents
 TO csacre15;
 
 GRANT EXECUTE ON FUNCTION
@@ -606,4 +605,5 @@ shyeld.miseAJourNombreVictoiresDefaites()
 TO csacre15;
 
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA shyeld TO csacre15;
+	
 

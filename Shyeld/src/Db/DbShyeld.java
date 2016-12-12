@@ -44,7 +44,7 @@ public class DbShyeld extends Db{
 			tableStatement.get("ia").setString(4, mdp);
 			try(ResultSet rs = tableStatement.get("ia").executeQuery()) {
 				while(rs.next()) {
-					System.out.println("L'agent a bien ï¿½tï¿½ ajoutï¿½ (id dans la bddn :"+rs.getInt("inscription_agent")+")");
+					System.out.println("L'agent a bien été ajouté (id dans la bddn :"+rs.getInt("inscription_agent")+")");
 				}
 
 			}
@@ -80,7 +80,7 @@ public class DbShyeld extends Db{
 			tableStatement.get("sa").setInt(1, id_agent);
 			try(ResultSet rs= tableStatement.get("sa").executeQuery()) {
 				while(rs.next()) {
-					System.out.println("L'agent ï¿½ l'id : "+rs.getInt("supprimeragent")+ " a bien ï¿½tï¿½ supprimï¿½ !");
+					System.out.println("L'agent a l'id : "+rs.getInt("supprimeragent")+ " a bien été supprimé !");
 				}
 
 			}
@@ -94,7 +94,7 @@ public class DbShyeld extends Db{
 
 	}
 	public void infoPerteVisibiliteSuperHero(){
-		System.out.println("Vous avez choisi d'inspecter la perte de visibilitï¿½ des super hï¿½ros");
+		System.out.println("Vous avez choisi d'inspecter la perte de visibilité des super héros");
 		try {
 			try(ResultSet rs= tableStatement.get("pv").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
@@ -120,7 +120,7 @@ public class DbShyeld extends Db{
 
 	}
 	public void listerZonesConflits(){
-		System.out.println("Vous avez choisi d'inspecter les zones ï¿½ conflits");
+		System.out.println("Vous avez choisi d'inspecter les zones en conflits");
 		try {
 			try(ResultSet rs= tableStatement.get("zc").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);
@@ -175,7 +175,7 @@ public class DbShyeld extends Db{
 		}
 	}
 	public void classementVictoires(){
-		System.out.println("Vous avez choisi de voir le classement des victoires des super-hï¿½ros");
+		System.out.println("Vous avez choisi de voir le classement des victoires des super-héros");
 		
 		try {
 			try(ResultSet rs= tableStatement.get("cv").executeQuery()) {
@@ -202,7 +202,7 @@ public class DbShyeld extends Db{
 
 	}
 	public void classementDefaites(){
-		System.out.println("Vous avez choisi de voir le classement des victoires des super-hï¿½ros");
+		System.out.println("Vous avez choisi de voir le classement des victoires des super-héros");
 	
 		try {
 			try(ResultSet rs= tableStatement.get("cd").executeQuery()) {
@@ -229,7 +229,7 @@ public class DbShyeld extends Db{
 
 	}
 	public void classementReperages(){
-		System.out.println("Vous avez choisi de voir le classement des repï¿½rages des agents");
+		System.out.println("Vous avez choisi de voir le classement des repérages des agents");
 		try {
 			try(ResultSet rs= tableStatement.get("cr").executeQuery()) {
 				DBTablePrinter.printResultSet(rs);

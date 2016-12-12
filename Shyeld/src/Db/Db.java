@@ -11,7 +11,7 @@ public class Db {
 
 	protected Connection connexionDb;
 	
-	public static String IPHOST_PORT ="172.24.2.6:5433";//172.24.2.6
+	public static String IPHOST_PORT ="172.24.2.6";//172.24.2.6
 	public static String nomBDDN ="dbdmeur15"; //dbdmeur15
 	private HashMap<String,PreparedStatement> tableStatement = new HashMap<String,PreparedStatement>();
 	
@@ -57,6 +57,11 @@ public class Db {
 			return null;
 		}
 		return null;
+	}
+	
+	private boolean toBoolean(String boolString){
+		System.out.println(boolString);
+		return boolString.equals("(t)");
 	}
 	
 	public int supprimerSuperHero(int idSuperHero) {

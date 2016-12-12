@@ -124,4 +124,16 @@ public class SuperHero {
 	public boolean isEstVivant() {
 		return estVivant;
 	}
+
+	@Override
+	public String toString() {
+		return "SuperHero [idSuperhero=" + idSuperhero + ", nomCivil=" + nomCivil + ", prenomCivil=" + prenomCivil
+				+ ", nomSuperhero=" + nomSuperhero + ", adressePrivee=" + adressePrivee + ", origine=" + origine
+				+ ", typeSuperPouvoir=" + typeSuperPouvoir + ", puissanceSuperPouvoir=" + puissanceSuperPouvoir
+				+ ", derniereCoordonneeX=" + derniereCoordonneeX + ", derniereCoordonneeY=" + derniereCoordonneeY
+				+ ", dateDerniereApparition=" + dateDerniereApparition + ", clan=" + clan + ", nombreVictoires="
+				+ nombreVictoires + ", nombreDefaites=" + nombreDefaites + ", estVivant=" + estVivant + "]";
+	}
+	
+	
 }
