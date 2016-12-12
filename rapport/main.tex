@@ -65,7 +65,7 @@
 	\begin{itemize}
 		\item Disposer des informations des super-héros et d'ajouter ceux-ci en cas d'absence dans la base de données
 		\item Ajouter des repérages de super-héros
-		\item Ajouter des combats et les participations qui y sont liés
+		\item Ajouter des combats et les participations qui y sont liées
 		\item Remarquer la mort d'un super-héros
 	\end{itemize}
 	; ainsi qu'une application centrale, elle aussi programmée en Java pour l'interface utilisateur, elle permet :
@@ -84,7 +84,7 @@
 	\begin{figure}[H]
 		\centering
 		\fbox{\includegraphics[width=\textwidth,height=12cm]{dsd.png}}
-		\caption{Page d'accueil du bug}
+		\caption{Diagramme de structure de données}
 	\end{figure}
     \newpage
 	\subsection{Description du diagramme de structures des données}
@@ -103,7 +103,7 @@
 		\item derniere\_coordonneeY (table superheros) 	
 	\end{itemize}
 	\paragraph{Encryption}
-	Le mot de passe des agents (indispensable pour leur permettre de se connecter à l'application) est encrypté grâce à une clé \textit{BCRYPT}.
+	Le mot de passe des agents (indispensable pour leur permettre de se connecter à l'application Agent) est encrypté grâce à une clé \textit{BCRYPT}.
 	\paragraph{Suppression des données}
 	Pour éviter d'avoir des participations qui ne soient liées à aucun super-héros et à aucun agent, nous avons utilisé un système de drapeau (\textit{est\_vivant} \& \textit{est\_actif}).
 	
@@ -142,17 +142,18 @@
 		\item La date doit être inférieur (ou égale) à la date du serveur.
 	\end{itemize}
 	\subsection{Affichage des données au sein de la console JAVA}
-	Actuellement nous avons d'utiliser la classe \href{https://github.com/htorun/dbtableprinter}{DBTablePrinter} afin d'afficher les résultats de la plupart de nos requêtes au sein de console. Cela permet notamment d'avoir un affichage clair du résultat. D'autres requêtes ne renvoyant qu'un tuple d'une colonne pour résultat sont quant à elle affichées directement dans la console sans passer par la classe DBTablePrinter (résultat des insertions dans la base de données, ...).
+	Actuellement nous avons décidé d'utiliser la classe \href{https://github.com/htorun/dbtableprinter}{DBTablePrinter} afin d'afficher les résultats de la plupart de nos requêtes au sein de console. Cela permet notamment d'avoir un affichage clair du résultat. D'autres requêtes ne renvoyant qu'un tuple d'une colonne pour résultat sont quant à elle affichées directement dans la console sans passer par la classe DBTablePrinter (résultat des insertions dans la base de données, ...).
     \subsection{Gestion des Transactions lors de l'ajout d'un combat}
     L'ajout d'un combat se fait au sein d'une transaction reprenant le combat en tant que tel ainsi que les participations qui y sont rattachées. Cela permet notamment d'effectuer plusieurs tests afin d'empêcher l'insertion d'un combat invalide.
-   	\Javacode{transaction}{Utilisation de transaction au sein de notre application}
-    \subsection{Utilisation de VIEWS au sein de notre code}
+   	\Javacode{transaction}{Utilisation d'une transaction pour l'ajout d'un combat}
+    \subsection{Utilisation de VIEWS au sein de notre application}
     Pour certaines opérations ne nécessitant aucune donnée, nous avons préféré utiliser des vues plutôt qu'une procédure à proprement parler, c'est notamment le cas pour : 
     \SQLcode{perte_visibilite}{Obtenir les informations sur tous les héros n'ayant pas été aperçu depuis plus de dix jours}
+    \newpage
     \SQLcode{zone_conflit}{Lister les zones potentielles de conflit}
     \SQLcode{classement_victoires}{Obtenir un classement des héros en fonction de leurs victoires}
     \SQLcode{classement_defaites}{Obtenir un classement des héros en fonction de leurs défaites}
-    
+    \newpage
    \SQLcode{classement_reperages}{Obtenir un classement des héros en fonction de leurs repérages}
    
 \SQLcode{affichage_agents}{Afficher le contenu de la table shyeld.agents}
@@ -160,7 +161,7 @@
 \SQLcode{affichage_combats}{Afficher le contenu de la table shyeld.combats}
 
 \SQLcode{affichage_reperages}{Afficher le contenu de la table shyeld.reperages}
-    
+    \newpage
 	\section{Remarques application SHYELD}
 	\label{shyield}
 	\subsection{SQL}
@@ -172,13 +173,12 @@ Etant donné que certains champs sont dénormalisés (voir section \ref{dsd}), n
  La vérification des données d'un combat se fait par exemple via la fonction \textit{shyeld.verificationAuthenticiteCombat()}. Le déclenchement de ce trigger nous a posé soucis car les combats et les participations sont ajoutés au sein d'une transaction. Nous avons dès lors ajouté l'option "DEFERRABLE INITIALLY DEFERRED" dans la déclaration de notre trigger. Il est à noter que le nombre de rapports de l'agent est incrémenté directement depuis la fonction de création de combat.
  	\SQLcode{triggerCombat}{Trigger de vérification d'un combat}
  	
- Lors de la création d'un combat, chaque participation entraîne la création automatique d'un repérage. Si le combat n'est pas valide (il n'y a pas au moins un héros de chaque clan), la transaction sera annulée (ROLLBACK). En cas de combat invalide (inexistance d'au moins deux participations de deux héros de clans adverses), les repérages liés aux transactions sont tout de même effectués.
+ Lors de la création d'un combat, chaque participation entraîne la création automatique d'un repérage. Si le combat n'est pas valide (il n'y a pas au moins un héros de chaque clan), la transaction sera annulée (ROLLBACK). En cas de combat invalide (inexistance d'au moins deux participations de deux héros de clans adverses), les repérages liés aux participations sont tout de même effectués.
  	\SQLcode{triggerReperage}{Trigger de création automatique de repérage en cas d'insertion d'une participation}
  
 	
 	\subsubsection{Droits d'accès aux données}
 	Etant donné que l'application SHYELD est l'application centrale, elle sera exécutée grâce à l'utilisateur POSTGRESQL possédant la base de donnée, aucune restriction d'accès n'est effectuée pour cette partie de l'application.
-	\subsection{Java}
 	
 	
 	\section{Remarques application Agent}
@@ -190,6 +190,5 @@ Etant donné que certains champs sont dénormalisés (voir section \ref{dsd}), n
 	\subsubsection{Droits d'accès aux données}
 	L'agent n'est pas considéré comme un utilisateur administrateur, nous avons donc minimisé ces droits d'accès à la base de données au minium. A noter que l'utilisateur administrateur est représenté ici par \textit{dmeur15} et l'utisateur agent par \textit{csacre15}.
 	\SQLcode{grant}{Droits d'accès à la base de données pour un agent}
-	\subsection{Java}
 	
 \end{document}
