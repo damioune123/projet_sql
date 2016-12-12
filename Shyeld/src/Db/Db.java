@@ -32,7 +32,7 @@ public class Db {
 				PreparedStatement suppSH =this.connexionDb.prepareStatement("SELECT * FROM shyeld.supprimerSuperHeros(?);");
 				this.tableStatement.put("suppSH", suppSH);
 			} catch (SQLException e) {
-				System.out.println("Impossible de joindre le server !");
+				System.out.println("Impossible de joindre le serveur !");
 				System.exit(1);
 			}
 		}

@@ -63,9 +63,9 @@ public class DbAgent extends Db{
 				}
 				connexionDb.commit();
 			} catch (SQLException se) {
-				System.out.println("Le combat n'a pas pu �tre ajout�");
+				System.out.println("Le combat n'a pas pu être ajoute");
 				if(!participations.isEmpty()){
-					System.out.println("Les partcipations ont tout de m�me �t� rajout�e en tant que rep�rages");
+					System.out.println("Les partcipations ont tout de même été rajoutée en tant que repérages");
 					for(Participation participation : participations){
 						ajouterReperage(new Reperage(combat.getAgent(), participation.getSuperhero(), combat.getCoordCombatX(), combat.getCoordCombatY(), combat.getDateCombat()));
 					}
@@ -76,7 +76,7 @@ public class DbAgent extends Db{
 			try {
 				connexionDb.rollback();
 			} catch (SQLException e) {
-				System.out.println("Le retour en arri�re n'a pas p� �tre effectu�");
+				System.out.println("Le retour en arrière n'a pas pû être effectué");
 				id = -1;
 			}
 		} finally {
@@ -84,7 +84,7 @@ public class DbAgent extends Db{
 				connexionDb.setAutoCommit(true);
 				return id;
 			} catch (SQLException e) {
-				System.out.println("La fermeture de la connexion n'a pas p� �tre effectu�");
+				System.out.println("La fermeture de la connexion n'a pas pû être effectué");
 				return -1;
 			}
 		}
@@ -138,7 +138,7 @@ public class DbAgent extends Db{
 				}
 			}
 		} catch (SQLException se) {
-			System.out.println("La connexion n'a p� �tre effectu�e");
+			System.out.println("La connexion n'a pû être effectuée");
 			return null;
 		}
 		return null;
@@ -153,7 +153,7 @@ public class DbAgent extends Db{
 				return -1;
 			}
 		} catch (SQLException se) {
-			System.out.println("Erreur lors de la r�cup�ration de l'agent");
+			System.out.println("Erreur lors de la récupération de l'agent");
 			return -1;
 		}
 	}
@@ -180,7 +180,7 @@ public class DbAgent extends Db{
 				return -1;
 			}
 		} catch (SQLException se) {
-			System.out.println("Erreur lors de l'ajout du superh�ros");
+			System.out.println("Erreur lors de l'ajout du superhéros");
 			return -1;
 		}
 	}

@@ -67,7 +67,7 @@ public class ApplicationShyeld {
 				boucle = scanner.next().charAt(0);
 			}while(Util.lireCharOouN(boucle));
 		}catch(InputMismatchException im){
-			System.out.println("Attention � votre �criture !");
+			System.out.println("Attention à votre écriture !");
 			scanner = new java.util.Scanner(System.in);
 			this.menuPrincipal();
 		}
