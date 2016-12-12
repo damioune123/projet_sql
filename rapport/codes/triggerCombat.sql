@@ -1,4 +1,4 @@
---  Vérification authenticité d'un combat : au moins deux héros de factions adverses + participations gagnantes correspond au clan vainqueur et paricipations perdantes correspondent au clant perdant
+
 CREATE OR REPLACE FUNCTION shyeld.verificationAuthenticiteCombat()  RETURNS TRIGGER AS $$
 DECLARE
 	_participation RECORD;
@@ -25,7 +25,7 @@ BEGIN
 		END IF;
 	END LOOP;
 	IF (_compteurDece <= 0 OR _compteurMarvelle <= 0) THEN
-		RAISE 'Deux clans adverses sont requis pour le même combat';
+		RAISE 'Deux clans adverses sont requis pour le meme combat';
 	END IF;
 	RETURN NEW;
 		

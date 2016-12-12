@@ -44,6 +44,12 @@
 \newlength{\length}
 \setlength{\length}{3\baselineskip}
 
+\newcommand{\Javacode}[2]{
+	\begin{itemize}
+    	\item[]\lstinputlisting[caption=#2,label=#1]{#1.java}
+	\end{itemize}
+}
+
 % ---------- Document ------------ %
 \begin{document}
 	
@@ -80,6 +86,7 @@
 		\fbox{\includegraphics[width=\textwidth,height=12cm]{dsd.png}}
 		\caption{Page d'accueil du bug}
 	\end{figure}
+    \newpage
 	\subsection{Description du diagramme de structures des données}
 	\label{dsd}
 	Nous avons fait le choix de dénormaliser les champs suivants: 
@@ -109,7 +116,7 @@
 		\item Les coordonnées doivent être comprises entre 1 et 100.
 		\item Le nombre de victoires et défaites doivent être supérieur ou égal à 0.
 		\item La date de dernière apparition doit être inférieure ou égale à la date actuelle du serveur.
-		\item Un clan ne peut être que 'M' (Marvelle) ou 'D' (Décé).
+        \item Un clan ne peut être que 'M' (Marvelle) ou 'D' (Décé).
 	\end{itemize}
 	Pour la table agents :
 	\begin{itemize}
@@ -135,21 +142,39 @@
 		\item La date doit être inférieur (ou égale) à la date du serveur.
 	\end{itemize}
 	\subsection{Affichage des données au sein de la console JAVA}
-	Actuellement nous avons d'utiliser la classe \href{https://github.com/htorun/dbtableprinter}{DBTablePrinter} afin d'afficher les résultats de la plupart de nos requêtes au sein de console. Cela permet notamment d'avoir un affichage clair du résultat. D'autres requêtes ne renvoyant qu'un tuple d'une colonne pour résultat sont quant à elle affichées directement dans la console sans passer par la classe DBTablePrinter (résultat des insertions dans la base de données, ...). 
+	Actuellement nous avons d'utiliser la classe \href{https://github.com/htorun/dbtableprinter}{DBTablePrinter} afin d'afficher les résultats de la plupart de nos requêtes au sein de console. Cela permet notamment d'avoir un affichage clair du résultat. D'autres requêtes ne renvoyant qu'un tuple d'une colonne pour résultat sont quant à elle affichées directement dans la console sans passer par la classe DBTablePrinter (résultat des insertions dans la base de données, ...).
+    \subsection{Gestion des Transactions lors de l'ajout d'un combat}
+    L'ajout d'un combat se fait au sein d'une transaction reprenant le combat en tant que tel ainsi que les participations qui y sont rattachées. Cela permet notamment d'effectuer plusieurs tests afin d'empêcher l'insertion d'un combat invalide.
+   	\Javacode{transaction}{Utilisation de transaction au sein de notre application}
+    \subsection{Utilisation de VIEWS au sein de notre code}
+    Pour certaines opérations ne nécessitant aucune donnée, nous avons préféré utiliser des vues plutôt qu'une procédure à proprement parler, c'est notamment le cas pour : 
+    \SQLcode{perte_visibilite}{Obtenir les informations sur tous les héros n'ayant pas été aperçu depuis plus de dix jours}
+    \SQLcode{zone_conflit}{Lister les zones potentielles de conflit}
+    \SQLcode{classement_victoires}{Obtenir un classement des héros en fonction de leurs victoires}
+    \SQLcode{classement_defaites}{Obtenir un classement des héros en fonction de leurs défaites}
+    
+   \SQLcode{classement_reperages}{Obtenir un classement des héros en fonction de leurs repérages}
+   
+\SQLcode{affichage_agents}{Afficher le contenu de la table shyeld.agents}
+
+\SQLcode{affichage_combats}{Afficher le contenu de la table shyeld.combats}
+
+\SQLcode{affichage_reperages}{Afficher le contenu de la table shyeld.reperages}
+    
 	\section{Remarques application SHYELD}
 	\label{shyield}
 	\subsection{SQL}
-	
+		
 	\subsubsection{Triggers nécessaires à la dénormalisation}
 	
-	Etant donné que certains champs sont dénormalisés (voir section \ref{dsd}), nous avons utilisés des triggers pour les tenir à jour.
-	
-	La vérification des données d'un combat se fait par exemple via la fonction \textit{shyeld.verificationAuthenticiteCombat()}. Le déclenchement de ce trigger nous a posé soucis car les combats et les participations sont ajoutés au sein d'une transaction. Nous avons dès lors ajouté l'option "DEFERRABLE INITIALLY DEFERRED" dans la déclaration de notre trigger. Il est à noter que le nombre de rapports de l'agent est incrémenté directement depuis la fonction de création de combat.
-	\SQLcode{triggerCombat}{Trigger de vérification d'un combat}
-	
-	Lors de la création d'un combat, chaque participation entraîne la création automatique d'un repérage. Si le combat n'est pas valide (il n'y a pas au moins un héros de chaque clan), la transaction sera annulée (ROLLBACK). Nous n'avons pas fait le choix de tout de même ajouté un repérage en cas de combat non-valide car nous considérons cela comme une simple mauvaise utilisation de l'application par l'utilisateur.
-	\SQLcode{triggerReperage}{Trigger de création automatique de repérage en cas d'insertion d'une participation}
-	
+Etant donné que certains champs sont dénormalisés (voir section \ref{dsd}), nous avons utilisés des triggers pour les tenir à jour.
+
+ La vérification des données d'un combat se fait par exemple via la fonction \textit{shyeld.verificationAuthenticiteCombat()}. Le déclenchement de ce trigger nous a posé soucis car les combats et les participations sont ajoutés au sein d'une transaction. Nous avons dès lors ajouté l'option "DEFERRABLE INITIALLY DEFERRED" dans la déclaration de notre trigger. Il est à noter que le nombre de rapports de l'agent est incrémenté directement depuis la fonction de création de combat.
+ 	\SQLcode{triggerCombat}{Trigger de vérification d'un combat}
+ 	
+ Lors de la création d'un combat, chaque participation entraîne la création automatique d'un repérage. Si le combat n'est pas valide (il n'y a pas au moins un héros de chaque clan), la transaction sera annulée (ROLLBACK). En cas de combat invalide (inexistance d'au moins deux participations de deux héros de clans adverses), les repérages liés aux transactions sont tout de même effectués.
+ 	\SQLcode{triggerReperage}{Trigger de création automatique de repérage en cas d'insertion d'une participation}
+ 
 	
 	\subsubsection{Droits d'accès aux données}
 	Etant donné que l'application SHYELD est l'application centrale, elle sera exécutée grâce à l'utilisateur POSTGRESQL possédant la base de donnée, aucune restriction d'accès n'est effectuée pour cette partie de l'application.
@@ -159,7 +184,7 @@
 	\section{Remarques application Agent}
 	\label{agent}
 	\subsubsection{SQL}
-	
+
 	\subsubsection{Connexion Agent}
 	Etant donné que les mots de passes sont salés, nous faisons la vérfication de ceux-ci en Java. La fonction s shyeld.check\_connexion(varchar(255)) renvoie le mot de passe haché en BCRYPT pour faire la vérification au sein de l'applicaiton java (elle renvoie NULL en cas où 'identifiant ne correspond à aucun utilisateur.
 	\subsubsection{Droits d'accès aux données}
