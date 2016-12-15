@@ -255,8 +255,9 @@ public class ApplicationAgent {
 			System.out.println("A quelle date l'avez vous vu ? (dd-mm-yyyy)");
 			java.sql.Date date = Util.formaterDate(scanner.next());
 			idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, coordX, coordY, date));
+		} else {
+			idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, superhero.getDerniereCoordonneeX(), superhero.getDerniereCoordonneeY(), superhero.getDateDerniereApparition()));
 		}
-		idReperage = connexionDb.ajouterReperage(new Reperage(idAgent, idSuperHero, superhero.getDerniereCoordonneeX(), superhero.getDerniereCoordonneeY(), superhero.getDateDerniereApparition()));
 		if(idReperage < 0) {
 			System.out.println("Erreur lors de l'ajout du repérage");
 		} else {
